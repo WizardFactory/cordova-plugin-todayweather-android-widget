@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-todayweather-android-widget" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>todayweatherAndroidWidget</name>
+    <js-module name="todayweatherAndroidWidget" src="www/todayweatherAndroidWidget.js">
+        <clobbers target="cordova.plugins.todayweatherAndroidWidget" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <framework src="src/android/plugin.gradle" custom="true" type="gradleReference"/>
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="todayweatherAndroidWidget">
+                <param name="android-package" value="cordova-plugin-todayweather-android-widget.todayweatherAndroidWidget" />
+            </feature>
+        </config-file>
+	<config-file target="res/values/strings.xml" parent="/resources">
+      <string name="widget_name" translatable="false">@string/launcher_name</string>
+      <string name="degree" translatable="false">˚</string>
+      <string name="temperature_separator" translatable="false">/</string>
+      <string name="weather_icon" translatable="false">weather icon</string>
+      <string name="yesterday">Yesterday</string>
+      <string name="today">Today</string>
+      <string name="tomorrow">Tomorrow</string>
+      <string name="same_yesterday">Same as yesterday</string>
+      <string name="cmp_yesterday">%1$s˚ from yesterday</string>
+      <string name="update">Update</string>
+      <string name="move_main">Go to App</string>
+      <string name="msg_do_not_widget_data_plz_update">Unable to retrieve weather information.\nClick here to refresh.</string>
+      <string name="fail_to_get_location">TodayWeather : Unable to detect your location.</string>
+      <string name="current_position">Current Location</string>
+      <string name="ok">OK</string>
+      <string name="cancel">Cancel</string>
+      <string name="aqi">AQI</string>
+      <string name="pm10">PM10</string>
+      <string name="pm25">PM2.5</string>
+      <string name="good">Good</string>
+      <string name="moderate">Moderate</string>
+      <string name="unhealthy_for_sensitive_groups">Unhealthy for sensitive groups</string>
+      <string name="unhealthy">Unhealthy</string>
+      <string name="very_unhealthy">Very unhealthy</string>
+      <string name="hazardous">Hazardous</string>
+      <string name="this_location_is_not_supported">No weather data available</string>
+      <string name="fail_to_get_geoinfo">TodayWeather : Unable to retrieve local data</string>
+      <string name="loading">Loading</string>
+      <string name="general">General</string>
+      <string name="style">Style</string>
+      <string name="location">Location</string>
+      <string name="refresh_interval">Refresh Interval</string>
+      <string name="transparency">Transparency</string>
+      <string name="background_color">Background Color</string>
+      <string name="font_color">Font Color</string>
+      <string name="add_locations">Add locations in the app</string>
+        </config-file>
+    	<config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:launchMode="singleInstance" android:name=".widget.WidgetMenuActivity" android:theme="@android:style/Theme.Translucent" />
+            <service android:name=".widget.WidgetUpdateService" />
+            <activity android:name=".widget.SettingsActivity" android:theme="@android:style/Theme.DeviceDefault.Light">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+                </intent-filter>
+            </activity>
+            <receiver android:label="@string/widget_name" android:name=".widget.Provider.W1x1CurrentWeather">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/w1x1_current_weather_info" />
+            </receiver>
+            <receiver android:name=".widget.Provider.W2x1CurrentWeather">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/w2x1_current_weather_info" />
+            </receiver>
+            <receiver android:name=".widget.Provider.ClockAndCurrentWeather">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/clock_and_current_weather_info" />
+            </receiver>
+            <receiver android:name=".widget.Provider.CurrentWeatherAndThreeDays">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/current_weather_and_three_days_info" />
+            </receiver>
+            <receiver android:name=".widget.Provider.ClockAndThreeDays">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/clock_and_three_days_info" />
+            </receiver>
+            <receiver android:name=".widget.Provider.DailyWeather">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/daily_weather_info" />
+            </receiver>
+            <receiver android:name=".widget.Provider.AirQualityIndex">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/air_quality_index_info" />
+            </receiver>
+            <receiver android:label="@string/widget_name" android:name=".widget.Provider.W2x1WidgetProvider">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/w2x1_widget_provider" />
+            </receiver>
+        </config-file>
+        <!--<source-file src="src/android/todayweatherAndroidWidget.java" target-dir="src/cordova-plugin-todayweather-android-widget/todayweatherAndroidWidget" />-->
+        <source-file src="src/android/widget" target-dir="src/net/wizardfactory/todayweather" />
+        <!--  drawable src/android/resources -->
+        <source-file src="src/android/res/drawable-xhdpi/bg_round_black_box.xml" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/bg_round_gray_box.xml" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/bg_round_white_box.xml" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/cloud_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/ic_sentiment_dissatisfied_white_48dp.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/ic_sentiment_neutral_white_48dp.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/ic_sentiment_satisfied_white_48dp.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/ic_sentiment_very_dissatisfied_white_48dp.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/ic_sentiment_very_satisfied_white_48dp.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/icon.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_bigcloud_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_cloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_smallcloud_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/moon_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/reddot.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_bigcloud_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_cloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_rain.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_rain_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_rain_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_rain_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_smallcloud_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_snow.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/sun_snow_lightning.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/transparent.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w1x1_currentweather.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w2x1_currentaqi.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w2x1_currentweather.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w2x1_widget_sample.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w3x1_clock_currentweather.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w4x1_clock_threedays.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w4x1_currentweather_threedays.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/w4x1_dailyweather.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/drawable-xhdpi/wind_cloud.png" target-dir="res/drawable-xhdpi" />
+        <source-file src="src/android/res/layout/air_quality_index.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/clock_and_current_weather.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/clock_and_three_days.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/current_weather_and_three_days.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/daily_weather.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/w1x1_current_weather.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/w2x1_current_weather.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/w2x1_widget_layout.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout/widget_menu.xml" target-dir="res/layout" />
+        <source-file src="src/android/res/layout-v17/clock_and_current_weather.xml" target-dir="res/layout-v17" />
+        <source-file src="src/android/res/layout-v17/clock_and_three_days.xml" target-dir="res/layout-v17" />
+        <source-file src="src/android/res/values/apppreferences.xml" target-dir="res/values" />
+        <source-file src="src/android/res/values/dimens.xml" target-dir="res/values" />
+        <source-file src="src/android/res/values/ids.xml" target-dir="res/values" />
+        <source-file src="src/android/res/values-de/apppreferences.xml" target-dir="res/values-de" />
+        <source-file src="src/android/res/values-de/strings.xml" target-dir="res/values-de" />
+        <source-file src="src/android/res/values-en/apppreferences.xml" target-dir="res/values-en" />
+        <source-file src="src/android/res/values-en/strings.xml" target-dir="res/values-en" />
+        <source-file src="src/android/res/values-ja/apppreferences.xml" target-dir="res/values-ja" />
+        <source-file src="src/android/res/values-ja/strings.xml" target-dir="res/values-ja" />
+        <source-file src="src/android/res/values-ko/apppreferences.xml" target-dir="res/values-ko" />
+        <source-file src="src/android/res/values-ko/strings.xml" target-dir="res/values-ko" />
+        <source-file src="src/android/res/values-v14/dimens.xml" target-dir="res/values-v14" />
+        <source-file src="src/android/res/values-zh-rCN/apppreferences.xml" target-dir="res/values-zh-rCN" />
+        <source-file src="src/android/res/values-zh-rCN/strings.xml" target-dir="res/values-zh-rCN" />
+        <source-file src="src/android/res/values-zh-rTW/apppreferences.xml" target-dir="res/values-zh-rTW" />
+        <source-file src="src/android/res/values-zh-rTW/strings.xml" target-dir="res/values-zh-rTW" />
+        <source-file src="src/android/res/xml/air_quality_index_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/apppreferences.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/clock_and_current_weather_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/clock_and_three_days_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/current_weather_and_three_days_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/daily_weather_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/w1x1_current_weather_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/w2x1_current_weather_info.xml" target-dir="res/xml" />
+        <source-file src="src/android/res/xml/w2x1_widget_provider.xml" target-dir="res/xml" />
+    </platform>
+</plugin>
