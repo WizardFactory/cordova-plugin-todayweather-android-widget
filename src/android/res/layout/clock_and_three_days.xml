@@ -46,8 +46,7 @@
             <AnalogClock
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/analogClock"
-                android:visibility="invisible" />
+                android:id="@+id/analogClock" />
         </LinearLayout>
 
         <LinearLayout

@@ -50,15 +50,6 @@ public class ClockAndThreeDays extends TwWidgetProvider {
                 }
             }
         }
-
-        if (Build.VERSION.SDK_INT >= 17) {
-            views.setViewVisibility(R.id.time, View.VISIBLE);
-            views.setViewVisibility(R.id.date, View.VISIBLE);
-            views.setViewVisibility(R.id.am_pm, View.VISIBLE);
-        }
-        else {
-            views.setViewVisibility(R.id.analogClock, View.VISIBLE);
-        }
     }
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
@@ -80,15 +71,6 @@ public class ClockAndThreeDays extends TwWidgetProvider {
                     views.setTextViewTextSize(tempIds[i], TypedValue.COMPLEX_UNIT_DIP, 18);
                 }
             }
-        }
-
-        if (Build.VERSION.SDK_INT >= 17) {
-            views.setViewVisibility(R.id.time, View.VISIBLE);
-            views.setViewVisibility(R.id.date, View.VISIBLE);
-            views.setViewVisibility(R.id.am_pm, View.VISIBLE);
-        }
-        else {
-            views.setViewVisibility(R.id.analogClock, View.VISIBLE);
         }
 
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);

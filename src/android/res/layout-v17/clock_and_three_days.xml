@@ -53,8 +53,7 @@
                 android:includeFontPadding="false"
                 android:textSize="14dp"
                 android:format24Hour="MM.dd. E"
-                android:format12Hour="MM.dd. E"
-                android:visibility="invisible" />
+                android:format12Hour="MM.dd. E" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -68,8 +67,7 @@
                     android:textSize="40dp"
                     android:id="@+id/time"
                     android:format24Hour="hh:mm"
-                    android:format12Hour="hh:mm"
-                    android:visibility="invisible" />
+                    android:format12Hour="hh:mm" />
 
                 <TextClock
                     android:layout_width="wrap_content"
@@ -79,8 +77,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_toRightOf="@+id/time"
                     android:format24Hour="a"
-                    android:format12Hour="a"
-                    android:visibility="invisible" />
+                    android:format12Hour="a" />
             </RelativeLayout>
 
         </LinearLayout>

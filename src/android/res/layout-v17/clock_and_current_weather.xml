@@ -40,8 +40,7 @@
             android:layout_alignParentLeft="true"
             android:textSize="14dp"
             android:format24Hour="MM.dd. E"
-            android:format12Hour="MM.dd. E"
-            android:visibility="invisible" />
+            android:format12Hour="MM.dd. E" />
 
         <TextClock
             android:layout_width="wrap_content"
@@ -52,8 +51,7 @@
             android:layout_below="@id/date"
             android:layout_alignParentLeft="true"
             android:format24Hour="hh:mm"
-            android:format12Hour="hh:mm"
-            android:visibility="invisible" />
+            android:format12Hour="hh:mm" />
 
         <TextClock
             android:layout_width="wrap_content"
@@ -65,8 +63,7 @@
             android:format12Hour="a"
             android:layout_toLeftOf="@+id/tmn_tmx_pm_pp"
             android:layout_toRightOf="@+id/time"
-            android:layout_toEndOf="@+id/time"
-            android:visibility="invisible" />
+            android:layout_toEndOf="@+id/time" />
 
         <TextView
             android:layout_width="wrap_content"
