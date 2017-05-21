@@ -67,6 +67,7 @@ public class WidgetUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("Service", "on Start Command");
 
         if (intent == null) {
             Log.e("Service", "intent is null on Start Command");
@@ -95,7 +96,7 @@ public class WidgetUpdateService extends Service {
         return null;
     }
 
-    private void startUpdate(int widgetId) {
+    private void startUpdate(final int widgetId) {
         final Context context = getApplicationContext();
         String jsonCityInfoStr = SettingsActivity.loadCityInfoPref(context, widgetId);
         boolean currentPosition = true;
@@ -139,12 +140,23 @@ public class WidgetUpdateService extends Service {
             return;
         }
 
+        /**
+         * Thread 분리하게 되었지만, 업데이트에 대하여 안정성을 보장하지 못하고 있음
+         * 데이터 수신이 완료되면 event를 받아 처리해야 함
+         */
+        Runnable updateTask = null;
+
         if (currentPosition) {
             Log.i("Service", "Update current position app widget id=" + widgetId);
-            registerLocationUpdates(widgetId);
+            updateTask = new Runnable() {
+                @Override
+                public void run() {
+                    registerLocationUpdates(widgetId);
+                }
+            };
 
             // if location do not found in LOCATION_TIMEOUT, this service is stop.
-            Runnable myRunnable = new Runnable() {
+            Runnable stopLocationListenerRunnable = new Runnable() {
                 public void run() {
                     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         // TODO: Consider calling
@@ -154,32 +166,50 @@ public class WidgetUpdateService extends Service {
                         //                                          int[] grantResults)
                         // to handle the case where the user grants the permission. See the documentation
                         // for ActivityCompat#requestPermissions for more details.
-                        return;
                     }
-                    mLocationManager.removeUpdates(locationListener);
+                    else {
+                        if (mLocationManager != null) {
+                            mLocationManager.removeUpdates(locationListener);
+                        }
+                    }
                     stopSelf();
                 }
             };
-            Handler myHandler = new Handler();
-            myHandler.postDelayed(myRunnable, LOCATION_TIMEOUT);
+            Handler stopLocationListenerHandler = new Handler();
+            stopLocationListenerHandler.postDelayed(stopLocationListenerRunnable, LOCATION_TIMEOUT);
         } else {
             Log.i("Service", "Update address=" + geoInfo.getAddress() + " app widget id=" + widgetId);
             //check country
             if (geoInfo.getCountry() == null || geoInfo.getCountry().equals("KR")) {
                 String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
+                final String locationName = geoInfo.getName();
                 if (addr != null) {
-                    addr = mUrl + kmaApiUrl + addr;
-                    String jsonData = getWeatherDataFromServer(addr);
-                    updateWidget(widgetId, jsonData, geoInfo.getName());
+                    final String url = mUrl + kmaApiUrl + addr;
+                    updateTask = new Runnable() {
+                        @Override
+                        public void run() {
+                            String jsonData = getWeatherDataFromServer(url);
+                            updateWidget(widgetId, jsonData, locationName);
+                        }
+                    };
                 }
             }
             else {
-                String addr = mUrl + worldWeatherApiUrl + geoInfo.getLat() + "," + geoInfo.getLng();
-                Log.i("Service", "url="+addr);
-                String jsonData = getWeatherDataFromServer(addr);
-                updateWorldWeatherWidget(widgetId, jsonData, geoInfo.getName());
-                //make world weather url
+                final String url = mUrl + worldWeatherApiUrl + geoInfo.getLat() + "," + geoInfo.getLng();
+                final String locationName = geoInfo.getName();
+                Log.i("Service", "url="+url);
+                updateTask = new Runnable() {
+                    @Override
+                    public void run() {
+                        String jsonData = getWeatherDataFromServer(url);
+                        updateWorldWeatherWidget(widgetId, jsonData, locationName);
+                    }
+                };
             }
+        }
+
+        if (updateTask != null) {
+            new Handler().post(updateTask);
         }
     }
 
