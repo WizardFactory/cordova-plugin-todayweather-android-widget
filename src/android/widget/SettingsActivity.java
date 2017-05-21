@@ -211,6 +211,12 @@ public class SettingsActivity extends PreferenceActivity {
         prefs.apply();
     }
 
+    /**
+     *
+     * @param context
+     * @param appWidgetId
+     * @return minutes
+     */
     public static long loadUpdateIntervalPref(Context context, int appWidgetId) {
         SharedPreferences widgetPrefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0);
         long minInterval = widgetPrefs.getLong(WIDGET_UPDATE_INTERVAL_PREFIX_KEY + appWidgetId, -1);
@@ -220,6 +226,9 @@ public class SettingsActivity extends PreferenceActivity {
             minInterval = appPrefs.getInt(APP_UPDATE_INTERVAL_KEY, 0);
             saveUpdateIntervalPref(context, appWidgetId, minInterval);
         }
+        if (minInterval == 1) {
+            saveUpdateIntervalPref(context, appWidgetId, 30);
+        }
 
         Log.i(TAG, "[widget_" + appWidgetId + "] update interval = " + minInterval);
         minInterval = minInterval * 60 * 1000;
@@ -228,7 +237,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     public static void saveUpdateIntervalPref(Context context, int appWidgetId, long minInterval) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0).edit();
-        prefs.putLong(WIDGET_UPDATE_INTERVAL_PREFIX_KEY + appWidgetId, 1);
+        prefs.putLong(WIDGET_UPDATE_INTERVAL_PREFIX_KEY + appWidgetId, minInterval);
         prefs.apply();
     }
 

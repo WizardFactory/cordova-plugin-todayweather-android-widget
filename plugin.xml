@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-todayweather-android-widget" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-todayweather-android-widget" version="0.0.2" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>todayweatherAndroidWidget</name>
     <js-module name="todayweatherAndroidWidget" src="www/todayweatherAndroidWidget.js">
         <clobbers target="cordova.plugins.todayweatherAndroidWidget" />
@@ -127,7 +127,6 @@
 <resource-file src="src/android/res/drawable-xhdpi/ic_sentiment_satisfied_white_48dp.png" target="res/drawable-xhdpi/ic_sentiment_satisfied_white_48dp.png" />
 <resource-file src="src/android/res/drawable-xhdpi/ic_sentiment_very_dissatisfied_white_48dp.png" target="res/drawable-xhdpi/ic_sentiment_very_dissatisfied_white_48dp.png" />
 <resource-file src="src/android/res/drawable-xhdpi/ic_sentiment_very_satisfied_white_48dp.png" target="res/drawable-xhdpi/ic_sentiment_very_satisfied_white_48dp.png" />
-<resource-file src="src/android/res/drawable-xhdpi/icon.png" target="res/drawable-xhdpi/icon.png" />
 <resource-file src="src/android/res/drawable-xhdpi/lightning.png" target="res/drawable-xhdpi/lightning.png" />
 <resource-file src="src/android/res/drawable-xhdpi/moon.png" target="res/drawable-xhdpi/moon.png" />
 <resource-file src="src/android/res/drawable-xhdpi/moon_bigcloud.png" target="res/drawable-xhdpi/moon_bigcloud.png" />

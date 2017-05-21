@@ -24,7 +24,7 @@ import java.util.TimeZone;
 public class W2x1CurrentWeather extends TwWidgetProvider {
 
     public W2x1CurrentWeather() {
-        TAG = "W1x1 CurrentWeather";
+        TAG = "W2x1 CurrentWeather";
         mLayoutId = R.layout.w2x1_current_weather;
     }
 
