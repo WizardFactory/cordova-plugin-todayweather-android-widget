@@ -67,6 +67,12 @@ public class WidgetUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        if (intent == null) {
+            Log.e("Service", "intent is null on Start Command");
+            return START_NOT_STICKY;
+        }
+
         // Find the widget id from the intent.
         Bundle extras = intent.getExtras();
         int widgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
