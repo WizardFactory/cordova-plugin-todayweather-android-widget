@@ -48,7 +48,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -63,9 +62,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text=""
-                    android:textSize="40dp"
+                    android:textSize="32dp"
                     android:includeFontPadding="false"
                     android:id="@+id/current_temperature"
                     android:layout_alignParentTop="true"
@@ -101,7 +99,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -136,7 +133,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -171,7 +167,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"

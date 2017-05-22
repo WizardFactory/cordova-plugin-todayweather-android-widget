@@ -48,7 +48,6 @@
             <TextClock
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/date"
                 android:includeFontPadding="false"
                 android:textSize="14dp"
@@ -62,9 +61,8 @@
                 <TextClock
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:includeFontPadding="false"
-                    android:textSize="40dp"
+                    android:textSize="32dp"
                     android:id="@+id/time"
                     android:format24Hour="hh:mm"
                     android:format12Hour="hh:mm" />
@@ -101,7 +99,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -136,7 +133,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -171,7 +167,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"

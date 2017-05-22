@@ -1,6 +1,7 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -30,13 +31,13 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
         views.setTextColor(R.id.yesterday_temperature, fontColor);
         views.setTextColor(R.id.cmp_yesterday_temperature, fontColor);
         views.setTextColor(R.id.today_text, fontColor);
-        views.setTextColor(R.id.today_high_temperature, fontColor);
-        views.setTextColor(R.id.today_separator_temperature, fontColor);
-        views.setTextColor(R.id.today_low_temperature, fontColor);
+        views.setTextColor(R.id.today_high_temperature, Color.BLACK);
+        views.setTextColor(R.id.today_separator_temperature, Color.BLACK);
+        views.setTextColor(R.id.today_low_temperature, Color.BLACK);
         views.setTextColor(R.id.yesterday_text, fontColor);
-        views.setTextColor(R.id.yesterday_high_temperature, fontColor);
-        views.setTextColor(R.id.yesterday_separator_temperature, fontColor);
-        views.setTextColor(R.id.yesterday_low_temperature, fontColor);
+        views.setTextColor(R.id.yesterday_high_temperature, Color.BLACK);
+        views.setTextColor(R.id.yesterday_separator_temperature, Color.BLACK);
+        views.setTextColor(R.id.yesterday_low_temperature, Color.BLACK);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {

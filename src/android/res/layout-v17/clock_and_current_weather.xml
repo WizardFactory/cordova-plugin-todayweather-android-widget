@@ -14,7 +14,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text=""
             android:textSize="14dp"
             android:id="@+id/location"
@@ -24,7 +23,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/loading"
             android:textSize="14dp"
             android:id="@+id/pubdate"
@@ -34,7 +32,6 @@
         <TextClock
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/date"
             android:layout_below="@id/location"
             android:layout_alignParentLeft="true"
@@ -47,7 +44,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:id="@+id/time"
-            android:textSize="40dp"
+            android:textSize="32dp"
             android:layout_below="@id/date"
             android:layout_alignParentLeft="true"
             android:format24Hour="hh:mm"
@@ -68,7 +65,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text=""
             android:textSize="14dp"
             android:id="@+id/tmn_tmx_pm_pp"
@@ -89,10 +85,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:includeFontPadding="false"
             android:text=""
-            android:textSize="40dp"
+            android:textSize="32dp"
             android:id="@+id/current_temperature"
             android:layout_below="@+id/tmn_tmx_pm_pp"
             android:layout_alignParentRight="true" />
