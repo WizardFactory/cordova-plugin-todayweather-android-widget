@@ -15,9 +15,15 @@ import java.net.URL;
  */
 public class GetHttpsServerAysncTask extends AsyncTask<String, String, String> {
     private String url = null;
+    private AsyncCallback asyncCallback = null;
 
     public GetHttpsServerAysncTask(String url){
         this.url = url;
+    }
+
+    public GetHttpsServerAysncTask(String url, AsyncCallback asyncCallback){
+        this.url = url;
+        this.asyncCallback = asyncCallback;
     }
 
     @Override
@@ -35,6 +41,9 @@ public class GetHttpsServerAysncTask extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String jsonStr) {
         // do nothing
+        if (this.asyncCallback != null) {
+            this.asyncCallback.onPostExecute(jsonStr);
+        }
     }
 
     private String GetWeatherFromHttpsServer(String strUrl) {
