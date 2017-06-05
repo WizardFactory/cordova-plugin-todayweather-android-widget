@@ -152,6 +152,7 @@ public class WidgetUpdateService extends Service {
         mHandler = new IncomingHandler();
 
         startUpdate(widgetId);
+
         return START_NOT_STICKY;
     }
 
@@ -359,19 +360,28 @@ public class WidgetUpdateService extends Service {
         new GetHttpsServerAysncTask(geoUrl, new AsyncCallback() {
             @Override
             public void onPostExecute(String jsonStr) {
-                TransWeather transWeather = getTransWeatherInfo(widgetId);
-                if (transWeather.geoInfo == null) {
-                    transWeather.geoInfo = new GeoInfo();
-                }
-                transWeather.geoInfo.setJsonString(jsonStr);
-                Log.i("Service", transWeather.geoInfo.getAddress());
+                try {
+                    TransWeather transWeather = getTransWeatherInfo(widgetId);
+                    if (transWeather.geoInfo == null) {
+                        transWeather.geoInfo = new GeoInfo();
+                    }
+                    if (transWeather.geoInfo.setJsonString(jsonStr) != true) {
+                        throw new Exception("Fail to parse geo info");
+                    }
 
-                if (transWeather.geoInfo.getCountry().equals("KR")) {
-                    mHandler.sendMessage(Message.obtain(null, MSG_GET_KR_ADDRESS, widgetId, -1));
+                    Log.i("Service", transWeather.geoInfo.getAddress());
+
+                    if (transWeather.geoInfo.getCountry().equals("KR")) {
+                        mHandler.sendMessage(Message.obtain(null, MSG_GET_KR_ADDRESS, widgetId, -1));
+                    }
+                    else {
+                        transWeather.urlWeatherInfo = SERVER_URL + WORLD_WEATHER_API_URL + transWeather.geoInfo.getLat() + "," + transWeather.geoInfo.getLng();
+                        mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+                    }
                 }
-                else {
-                    transWeather.urlWeatherInfo = SERVER_URL + WORLD_WEATHER_API_URL + transWeather.geoInfo.getLat() + "," + transWeather.geoInfo.getLng();
-                    mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+                catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
+                    Log.e("Service", e.toString());
                 }
             }
         }).execute();
@@ -389,16 +399,22 @@ public class WidgetUpdateService extends Service {
                 try {
                     AddressesElement addrsElement = AddressesElement.parsingAddressJson2String(jsonStr);
                     if (addrsElement == null || addrsElement.getAddrs() == null) {
-                        Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
-                        return;
+                        throw new Exception("Fail to parse address json to string");
                     }
                     retAddr = addrsElement.findDongAddressFromGoogleGeoCodeResults();
+                    if (retAddr == null) {
+                        throw new Exception("Fail to find dong address from google geo code");
+                    }
                     retAddr = addrsElement.makeUrlAddress(retAddr);
+                    if (retAddr == null) {
+                        throw new Exception("Fail to make url address");
+                    }
                     retAddr = SERVER_URL + KMA_API_URL + retAddr;
                     getTransWeatherInfo(widgetId).urlWeatherInfo = retAddr;
                     mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
                 }
                 catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
                     Log.e("Service", e.toString());
                 }
             }
