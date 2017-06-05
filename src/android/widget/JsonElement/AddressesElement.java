@@ -147,6 +147,7 @@ public class AddressesElement {
                 retUrl = "/" + encodingUtf8(addrTokens[1]);
             } else {
                 Log.e("AddressElement", "address is invalid");
+                return null;
             }
         }
 

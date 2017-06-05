@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -89,6 +90,21 @@ public class TwWidgetProvider extends AppWidgetProvider {
         }
     }
 
+    private void setAlarmManager(Context context, int appWidgetId, long updateInterval) {
+        if (mAlarmManager == null) {
+            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        }
+
+        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+        if (pendingIntent != null) {
+            if (updateInterval > 0) {
+                Log.i(TAG, "set alarm");
+                long updateTime = System.currentTimeMillis() + updateInterval*60*1000;
+                mAlarmManager.set(AlarmManager.RTC, updateTime, pendingIntent);
+            }
+        }
+    }
+
     private void setAlarmManager(Context context, int appWidgetId) {
         if (mAlarmManager == null) {
             mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -105,13 +121,27 @@ public class TwWidgetProvider extends AppWidgetProvider {
         }
     }
 
+    private boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
+    }
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
-        for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId);
-            cancelAlarmManager(context, appWidgetId);
-            setAlarmManager(context, appWidgetId);
+        if (isNetworkConnected(context)) {
+            for (int appWidgetId : appWidgetIds) {
+                updateAppWidget(context, appWidgetManager, appWidgetId);
+                cancelAlarmManager(context, appWidgetId);
+                setAlarmManager(context, appWidgetId);
+            }
+        }
+        else {
+            Log.e(TAG, "network is disconnected");
+            for (int appWidgetId : appWidgetIds) {
+                cancelAlarmManager(context, appWidgetId);
+                setAlarmManager(context, appWidgetId, 1);
+            }
         }
     }
 
