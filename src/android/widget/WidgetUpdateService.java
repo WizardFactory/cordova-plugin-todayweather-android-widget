@@ -326,6 +326,7 @@ public class WidgetUpdateService extends Service {
                 mLocationManager.removeUpdates(locationListener);
 
                 for (int i = 0; i < mAppWidgetId.length; i++) {
+                    getTransWeatherInfo(mAppWidgetId[i]).geoInfo = new GeoInfo();
                     GeoInfo geoInfo = getTransWeatherInfo(mAppWidgetId[i]).geoInfo;
                     geoInfo.setLat(geoInfo.toNormalize(lat));
                     geoInfo.setLng(geoInfo.toNormalize(lon));
@@ -377,6 +378,8 @@ public class WidgetUpdateService extends Service {
         json = gson.toJson(geoInfo);
         prefsEditor.putString("CurrentGeoInfo", json);
         prefsEditor.commit();
+
+        Log.i("Service", "Save geo info ="+geoInfo.toString());
     };
 
     /**
@@ -474,6 +477,8 @@ public class WidgetUpdateService extends Service {
     }
 
     private void getWeatherInfo(final int widgetId) {
+        Log.i("WidgetUpdateService", "get weather info widget="+widgetId);
+
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         if (transWeather.currentPosition) {
             this.saveCurrentGeoInfo(getApplicationContext(), transWeather.geoInfo);
@@ -481,6 +486,7 @@ public class WidgetUpdateService extends Service {
 
         GeoInfo geoInfo = transWeather.geoInfo;
         String url = null;
+        Log.i("WidgetUpdateService", "get weather info geo info="+geoInfo.toString());
 
         if (geoInfo.getCountry() == null || geoInfo.getCountry().equals("KR")) {
             String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
@@ -514,6 +520,8 @@ public class WidgetUpdateService extends Service {
     }
 
     private void updateWidget(int widgetId) {
+        Log.i("WidgetUpdateService", "update widget="+widgetId);
+
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         if (transWeather.geoInfo.getCountry() == null || transWeather.geoInfo.getCountry().equals("KR")) {
             updateKrWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());

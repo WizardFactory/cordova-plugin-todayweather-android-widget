@@ -185,4 +185,10 @@ public class GeoInfo {
 //        normal_val = Double.parseDouble(String.format("%.2f",normal_val));
 //        return normal_val;
     }
+
+    @Override
+    public String toString() {
+        return "name:"+this.getName()+", country="+this.getCountry()+", address="+
+                this.getAddress()+ ", lat="+this.getLat()+", lng="+this.getLng();
+    }
 }
