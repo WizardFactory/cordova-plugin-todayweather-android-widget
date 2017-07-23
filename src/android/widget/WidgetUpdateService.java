@@ -6,6 +6,7 @@ import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,6 +19,8 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import net.wizardfactory.todayweather.R;
 import net.wizardfactory.todayweather.widget.Data.Units;
@@ -99,8 +102,9 @@ public class WidgetUpdateService extends Service {
     class TransWeather {
         public int widgetId  = AppWidgetManager.INVALID_APPWIDGET_ID;
         public GeoInfo geoInfo = null;
-        public String urlWeatherInfo = null;
+//        public String urlWeatherInfo = null;
         public String strJsonWeatherInfo = null;
+        public boolean currentPosition = false;
     }
 
     private List<TransWeather> mTransWeatherInfoList = new ArrayList<TransWeather>();
@@ -164,7 +168,7 @@ public class WidgetUpdateService extends Service {
     private void startUpdate(final int widgetId) {
         final Context context = getApplicationContext();
         String jsonCityInfoStr = SettingsActivity.loadCityInfoPref(context, widgetId);
-        boolean currentPosition = true;
+        boolean currentPosition = false;
         JSONObject location = null;
         GeoInfo geoInfo = new GeoInfo();
 
@@ -207,10 +211,20 @@ public class WidgetUpdateService extends Service {
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         transWeather.geoInfo = geoInfo;
+        transWeather.currentPosition = currentPosition;
 
 
         if (currentPosition) {
             Log.i("Service", "Update current position app widget id=" + widgetId);
+            /**
+             * current geo inf를 가장 최근 위치값으로 본다.
+             * 실제로 앱에서 최종 갱신일 수 있지만, 여기서는 이 값을 가장 최신으로 본다.
+             * registerLocationUpdates에서 한 번 더 갱신된다.
+             */
+            GeoInfo savedGeoInfo = this.loadCurrentGeoInfo(context);
+            if (savedGeoInfo != null && savedGeoInfo.getName() != null) {
+                transWeather.geoInfo = geoInfo;
+            }
             registerLocationUpdates(widgetId);
 
             // if location do not found in LOCATION_TIMEOUT, this service is stop.
@@ -237,24 +251,8 @@ public class WidgetUpdateService extends Service {
             stopLocationListenerHandler.postDelayed(stopLocationListenerRunnable, LOCATION_TIMEOUT);
         } else {
             Log.i("Service", "Update address=" + geoInfo.getAddress() + " app widget id=" + widgetId);
-            String url = null;
-            final String locationName = geoInfo.getName();
 
-            if (geoInfo.getCountry() == null || geoInfo.getCountry().equals("KR")) {
-                String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
-                if (addr != null) {
-                    url = SERVER_URL + KMA_API_URL + addr;
-                    Log.i("Service", "url="+url);
-                }
-            }
-            else {
-                url = SERVER_URL + WORLD_WEATHER_API_URL + geoInfo.getLat() + "," + geoInfo.getLng();
-                Log.i("Service", "url="+url);
-            }
-            if (url != null) {
-                transWeather.urlWeatherInfo = url;
-                mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
-            }
+            mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
         }
     }
 
@@ -270,24 +268,32 @@ public class WidgetUpdateService extends Service {
                 Log.i("Service", "success last location from NETWORK");
             } else {
                 lastLoc = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            }
-            if (lastLoc != null) {
                 Log.i("Service", "success last location from gps");
-                TransWeather transWeather = getTransWeatherInfo(widgetId);
+            }
+
+            TransWeather transWeather = getTransWeatherInfo(widgetId);
+
+            if (lastLoc != null) {
                 if (transWeather.geoInfo == null) {
                     transWeather.geoInfo = new GeoInfo();
                 }
                 transWeather.geoInfo.setLat(transWeather.geoInfo.toNormalize(lastLoc.getLatitude()));
                 transWeather.geoInfo.setLng(transWeather.geoInfo.toNormalize(lastLoc.getLongitude()));
-                mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, widgetId, -1));
             }
             else {
-                mAppWidgetId = Arrays.copyOf(mAppWidgetId, mAppWidgetId.length + 1);
-                mAppWidgetId[mAppWidgetId.length - 1] = widgetId;
-
-                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300, 0, locationListener);
-                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+                Log.i("Service", "use saved location info");
             }
+
+            if (transWeather.geoInfo != null) {
+                mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, widgetId, -1));
+            }
+
+            mAppWidgetId = Arrays.copyOf(mAppWidgetId, mAppWidgetId.length + 1);
+            mAppWidgetId[mAppWidgetId.length - 1] = widgetId;
+
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300, 0, locationListener);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+
         } catch (SecurityException e) {
             Log.e("Service", e.toString());
             e.printStackTrace();
@@ -337,6 +343,42 @@ public class WidgetUpdateService extends Service {
         }
     };
 
+    private static final String WIDGET_PREFS_NAME = "net.wizardfactory.todayweather.widget.Provider.WidgetProvider";
+    private GeoInfo loadCurrentGeoInfo(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0);
+        Gson gson = new Gson();
+        String json = prefs.getString("CurrentGeoInfo", "");
+        GeoInfo geoInfo = gson.fromJson(json, GeoInfo.class);
+
+        return geoInfo;
+    };
+
+    private void saveCurrentGeoInfo(Context context, GeoInfo geoInfo) {
+        if (geoInfo == null || geoInfo.getName() == null || geoInfo.getLat() == 0 || geoInfo.getLng() == 0)  {
+            if (geoInfo == null) {
+                Log.e("Service", "Geo info is null");
+            }
+            else {
+                Log.e("Service", "Invalid geo info ="+geoInfo.toString());
+            }
+            return;
+        }
+
+        SharedPreferences prefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0);
+        Gson gson = new Gson();
+        String json = prefs.getString("CurrentGeoInfo", "");
+        GeoInfo savedGeoInfo = gson.fromJson(json, GeoInfo.class);
+        if(savedGeoInfo != null && savedGeoInfo.getLng() == geoInfo.getLng() && savedGeoInfo.getLat() == geoInfo.getLat()) {
+            Log.i("Service", "It's the same as saved geo info="+savedGeoInfo.toString());
+            return;
+        }
+
+        SharedPreferences.Editor prefsEditor = prefs.edit();
+        json = gson.toJson(geoInfo);
+        prefsEditor.putString("CurrentGeoInfo", json);
+        prefsEditor.commit();
+    };
+
     /**
      *
      // Tokyo 35.6894875,139.6917064
@@ -353,6 +395,22 @@ public class WidgetUpdateService extends Service {
      * @param widgetId
      */
     private void getGeoInfo(final int widgetId) {
+        //load saved data
+        //if geoinfo is same with saved
+        //call msg_get_weather_info
+
+        GeoInfo savedGeoInfo = this.loadCurrentGeoInfo(getApplicationContext());
+        if(savedGeoInfo != null && savedGeoInfo.getLat() != 0) {
+           if (savedGeoInfo.getLat() == getTransWeatherInfo(widgetId).geoInfo.getLat() &&
+                   savedGeoInfo.getLng() == getTransWeatherInfo(widgetId).geoInfo.getLng()) {
+               if (savedGeoInfo.getName() != null) {
+                   Log.i("Service", "Use saved geoinfo="+savedGeoInfo.toString());
+                   mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+                   return;
+               }
+           }
+        }
+
         String lang = Locale.getDefault().getLanguage();
         String geoUrl = String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%.3f,%.3f&language=%s",
                 getTransWeatherInfo(widgetId).geoInfo.getLat(), getTransWeatherInfo(widgetId).geoInfo.getLng(), lang);
@@ -375,7 +433,6 @@ public class WidgetUpdateService extends Service {
                         mHandler.sendMessage(Message.obtain(null, MSG_GET_KR_ADDRESS, widgetId, -1));
                     }
                     else {
-                        transWeather.urlWeatherInfo = SERVER_URL + WORLD_WEATHER_API_URL + transWeather.geoInfo.getLat() + "," + transWeather.geoInfo.getLng();
                         mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
                     }
                 }
@@ -405,12 +462,7 @@ public class WidgetUpdateService extends Service {
                     if (retAddr == null) {
                         throw new Exception("Fail to find dong address from google geo code");
                     }
-                    retAddr = addrsElement.makeUrlAddress(retAddr);
-                    if (retAddr == null) {
-                        throw new Exception("Fail to make url address");
-                    }
-                    retAddr = SERVER_URL + KMA_API_URL + retAddr;
-                    getTransWeatherInfo(widgetId).urlWeatherInfo = retAddr;
+                    getTransWeatherInfo(widgetId).geoInfo.setAddress(retAddr);
                     mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
                 }
                 catch (Exception e) {
@@ -422,7 +474,32 @@ public class WidgetUpdateService extends Service {
     }
 
     private void getWeatherInfo(final int widgetId) {
-        new GetHttpsServerAysncTask(getTransWeatherInfo(widgetId).urlWeatherInfo, new AsyncCallback() {
+        TransWeather transWeather = getTransWeatherInfo(widgetId);
+        if (transWeather.currentPosition) {
+            this.saveCurrentGeoInfo(getApplicationContext(), transWeather.geoInfo);
+        }
+
+        GeoInfo geoInfo = transWeather.geoInfo;
+        String url = null;
+
+        if (geoInfo.getCountry() == null || geoInfo.getCountry().equals("KR")) {
+            String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
+            if (addr != null) {
+                url = SERVER_URL + KMA_API_URL + addr;
+                Log.i("Service", "url=" + url);
+            }
+        }
+        else {
+            url = SERVER_URL + WORLD_WEATHER_API_URL + geoInfo.getLat() + "," + geoInfo.getLng();
+            Log.i("Service", "url=" + url);
+        }
+
+        if (url == null) {
+            Log.e("Service", "url is null on get weather info");
+            return;
+        }
+
+        new GetHttpsServerAysncTask(url, new AsyncCallback() {
             @Override
             public void onPostExecute(String jsonStr) {
                 if (jsonStr != null && jsonStr.length() > 0) {
