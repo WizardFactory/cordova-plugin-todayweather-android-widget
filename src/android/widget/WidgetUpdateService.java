@@ -244,7 +244,7 @@ public class WidgetUpdateService extends Service {
                             mLocationManager.removeUpdates(locationListener);
                         }
                     }
-                    stopSelf();
+                    //stopSelf();
                 }
             };
             Handler stopLocationListenerHandler = new Handler();
@@ -333,7 +333,7 @@ public class WidgetUpdateService extends Service {
                     mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, mAppWidgetId[i], -1));
                 }
                 mAppWidgetId = Arrays.copyOf(mAppWidgetId, 0);
-                stopSelf();
+                //stopSelf();
             }
         }
         public void onProviderDisabled(String provider) {
@@ -408,6 +408,7 @@ public class WidgetUpdateService extends Service {
                    savedGeoInfo.getLng() == getTransWeatherInfo(widgetId).geoInfo.getLng()) {
                if (savedGeoInfo.getName() != null) {
                    Log.i("Service", "Use saved geoinfo="+savedGeoInfo.toString());
+                   getTransWeatherInfo(widgetId).geoInfo = savedGeoInfo;
                    mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
                    return;
                }
