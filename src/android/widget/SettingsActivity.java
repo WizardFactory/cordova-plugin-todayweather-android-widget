@@ -1,7 +1,8 @@
 package net.wizardfactory.todayweather.widget;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,6 +61,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         // If this activity was started with an intent without an app widget ID, finish with an error.
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            Log.e(TAG, "invalid app widget id="+mAppWidgetId);
             finish();
             return;
         }
@@ -78,6 +80,52 @@ public class SettingsActivity extends PreferenceActivity {
         add.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private PendingIntent getAlarmIntent(Context context, int appWidgetId) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
+        Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(layoutId);
+
+        Intent intent = new Intent(this, widgetProvider);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetId});
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        return pendingIntent;
+    }
+
+    /**
+     * alarm 등록은 여기서 하지만, cancel은 widget provider에서 함
+     * @param context
+     * @param appWidgetId
+     * @param updateInterval
+     */
+    private void setAlarmManager(Context context, int appWidgetId, long updateInterval) {
+        AlarmManager alarmManager;
+
+        alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+
+        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+        if (pendingIntent != null) {
+            if (updateInterval > 0) {
+                Log.i(TAG, "set alarm interval="+updateInterval);
+                long updateTime = System.currentTimeMillis() + updateInterval*60*1000;
+                alarmManager.setRepeating(AlarmManager.RTC, updateTime, updateInterval*60*1000, pendingIntent);
+            }
+        }
+    }
+
+    private void cancelAlarmManager(Context context, int appWidgetId) {
+        AlarmManager alarmManager;
+        alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+
+        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+        if (pendingIntent != null) {
+            Log.i(TAG, "cancel alarm widgetId="+appWidgetId);
+            pendingIntent.cancel();
+            alarmManager.cancel(pendingIntent);
+        }
     }
 
     @Override
@@ -99,6 +147,10 @@ public class SettingsActivity extends PreferenceActivity {
 
             com.kizitonwose.colorpreference.ColorPreference fontColor = (com.kizitonwose.colorpreference.ColorPreference)settingsFragment.findPreference("fontColor");
             saveFontColorPref(context, mAppWidgetId, fontColor.getValue());
+
+
+            cancelAlarmManager(context, mAppWidgetId);
+            setAlarmManager(context, mAppWidgetId, Integer.parseInt(refreshInterval.getValue()));
 
             // It is the responsibility of the configuration activity to update the app widget
             updateWidget(context);
@@ -128,12 +180,10 @@ public class SettingsActivity extends PreferenceActivity {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
         Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(layoutId);
-        ComponentName thisWidget = new ComponentName(context, widgetProvider);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
 
         Intent intent = new Intent(this, widgetProvider);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {mAppWidgetId});
         intent.putExtra("ManualUpdate", true);
         sendBroadcast(intent);
     }

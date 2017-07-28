@@ -73,7 +73,7 @@ public class GetHttpsServerAysncTask extends AsyncTask<String, String, String> {
             }
         }
 
-        Log.i("AsyncTask", "ret: " + retString);
+        //Log.i("AsyncTask", "ret: " + retString);
         return retString;
     }
 }
