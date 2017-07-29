@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -44,11 +43,11 @@ public class TwWidgetProvider extends AppWidgetProvider {
     }
 
     public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        Log.i(TAG, "appWidgetId="+appWidgetId);
+        Log.i(TAG, "update app widget widgetId="+appWidgetId);
 
         // Create an Intent to launch menu
         Intent intent = new Intent(context, WidgetMenuActivity.class);
-//        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         intent.putExtra("LAYOUT_ID", mLayoutId);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -77,6 +76,11 @@ public class TwWidgetProvider extends AppWidgetProvider {
         return pendingIntent;
     }
 
+    /**
+     * set은 SettingsActivity에서 함.
+     * @param context
+     * @param appWidgetId
+     */
     private void cancelAlarmManager(Context context, int appWidgetId) {
         if (mAlarmManager == null) {
             mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -84,64 +88,32 @@ public class TwWidgetProvider extends AppWidgetProvider {
 
         PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
         if (pendingIntent != null) {
-            Log.i(TAG, "cancel alarm");
+            Log.i(TAG, "cancel alarm widgetId="+appWidgetId);
             pendingIntent.cancel();
             mAlarmManager.cancel(pendingIntent);
         }
     }
 
-    private void setAlarmManager(Context context, int appWidgetId, long updateInterval) {
-        if (mAlarmManager == null) {
-            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-        if (pendingIntent != null) {
-            if (updateInterval > 0) {
-                Log.i(TAG, "set alarm");
-                long updateTime = System.currentTimeMillis() + updateInterval*60*1000;
-                mAlarmManager.set(AlarmManager.RTC, updateTime, pendingIntent);
-            }
-        }
-    }
-
-    private void setAlarmManager(Context context, int appWidgetId) {
-        if (mAlarmManager == null) {
-            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-        if (pendingIntent != null) {
-            long updateInterval = SettingsActivity.loadUpdateIntervalPref(context, appWidgetId);
-            if (updateInterval > 0) {
-                Log.i(TAG, "set alarm");
-                long updateTime = System.currentTimeMillis() + updateInterval;
-                mAlarmManager.set(AlarmManager.RTC, updateTime, pendingIntent);
-            }
-        }
-    }
-
-    private boolean isNetworkConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
-    }
+//    private void setAlarmManager(Context context, int appWidgetId, long updateInterval) {
+//        if (mAlarmManager == null) {
+//            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+//        }
+//
+//        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+//        if (pendingIntent != null) {
+//            if (updateInterval > 0) {
+//                Log.i(TAG, "set alarm interval="+updateInterval);
+//                long updateTime = System.currentTimeMillis() + updateInterval*60*1000;
+//                mAlarmManager.set(AlarmManager.RTC, updateTime, pendingIntent);
+//            }
+//        }
+//    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
-        if (isNetworkConnected(context)) {
-            for (int appWidgetId : appWidgetIds) {
-                updateAppWidget(context, appWidgetManager, appWidgetId);
-                cancelAlarmManager(context, appWidgetId);
-                setAlarmManager(context, appWidgetId);
-            }
-        }
-        else {
-            Log.e(TAG, "network is disconnected");
-            for (int appWidgetId : appWidgetIds) {
-                cancelAlarmManager(context, appWidgetId);
-                setAlarmManager(context, appWidgetId, 1);
-            }
+        for (int appWidgetId : appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
 
@@ -163,7 +135,6 @@ public class TwWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
-        Log.i(TAG, "on deleted");
         // When the user deletes the widget, delete the preference associated with it.
         for (int appWidgetId : appWidgetIds) {
             cancelAlarmManager(context, appWidgetId);
@@ -208,4 +179,5 @@ public class TwWidgetProvider extends AppWidgetProvider {
         }
         return "";
     }
+
 }

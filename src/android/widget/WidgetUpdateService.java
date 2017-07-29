@@ -1,21 +1,20 @@
 package net.wizardfactory.todayweather.widget;
 
-import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -42,7 +41,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,17 +51,12 @@ import java.util.Locale;
  */
 public class WidgetUpdateService extends Service {
     // if find not location in this time, service is terminated.
-    private final static int LOCATION_TIMEOUT = 30 * 1000; // 20sec
+    private final static int LOCATION_TIMEOUT = 120 * 1000; //2mins
     private final static String SERVER_URL = "https://todayweather.wizardfactory.net";
     private final static String KMA_API_URL = "/v000803/town";
     private final static String WORLD_WEATHER_API_URL = "/ww/010000/current/2?gcode=";
 
     private LocationManager mLocationManager = null;
-    private boolean mIsLocationManagerRemoveUpdates = false;
-    /**
-     * for user location widget
-     */
-    private int[] mAppWidgetId = new int[0];
     private Context mContext;
     private AppWidgetManager mAppWidgetManager;
     private int mLayoutId;
@@ -77,21 +70,24 @@ public class WidgetUpdateService extends Service {
 
     private Handler mHandler = null;
 
+    /**
+     * msg.arg1 is widgetId, msg.arg2 is startId
+     */
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_GET_GEOINFO:
-                    getGeoInfo(msg.arg1);
+                    getGeoInfo(msg.arg1, msg.arg2);
                     break;
                 case MSG_GET_KR_ADDRESS:
-                    getKrAddressInfo(msg.arg1);
+                    getKrAddressInfo(msg.arg1, msg.arg2);
                     break;
                 case MSG_GET_WEATHER_INFO:
-                    getWeatherInfo(msg.arg1);
+                    getWeatherInfo(msg.arg1, msg.arg2);
                     break;
                 case MSG_DRAW_WIDGET:
-                    updateWidget(msg.arg1);
+                    updateWidget(msg.arg1, msg.arg2);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -137,6 +133,7 @@ public class WidgetUpdateService extends Service {
 
         if (intent == null) {
             Log.e("Service", "intent is null on Start Command");
+            stopSelf(startId);
             return START_NOT_STICKY;
         }
 
@@ -150,14 +147,16 @@ public class WidgetUpdateService extends Service {
 
         // If this activity was started with an intent without an app widget ID, finish with an error.
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            Log.e("Service", "INVALID APP WIDGET ID");
+            stopSelf(startId);
             return START_NOT_STICKY;
         }
 
         mHandler = new IncomingHandler();
 
-        startUpdate(widgetId);
+        startUpdate(widgetId, startId);
 
-        return START_NOT_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -165,7 +164,12 @@ public class WidgetUpdateService extends Service {
         return null;
     }
 
-    private void startUpdate(final int widgetId) {
+    private boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
+    }
+
+    private void startUpdate(final int widgetId, final int startId) {
         final Context context = getApplicationContext();
         String jsonCityInfoStr = SettingsActivity.loadCityInfoPref(context, widgetId);
         boolean currentPosition = false;
@@ -173,12 +177,8 @@ public class WidgetUpdateService extends Service {
         GeoInfo geoInfo = new GeoInfo();
 
         if (jsonCityInfoStr == null) {
-            Log.i("Service", "cityInfo is null, so this widget is zombi");
-
-//            Intent result = new Intent();
-//            result.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-//            result.setAction(AppWidgetManager.ACTION_APPWIDGET_DELETED);
-//            context.sendBroadcast(result);
+            Log.e("Service", "cityInfo is null, so this widget is zombi");
+            stopSelf(startId);
             return;
         }
 
@@ -206,8 +206,11 @@ public class WidgetUpdateService extends Service {
             mLocalUnits = units;
         } catch (JSONException e) {
             Log.e("Service", "JSONException: " + e.getMessage());
+            stopSelf(startId);
             return;
         }
+
+        Log.i("Service", "start update startId="+startId);
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         transWeather.geoInfo = geoInfo;
@@ -225,50 +228,35 @@ public class WidgetUpdateService extends Service {
             if (savedGeoInfo != null && savedGeoInfo.getName() != null) {
                 transWeather.geoInfo = geoInfo;
             }
-            registerLocationUpdates(widgetId);
-
-            // if location do not found in LOCATION_TIMEOUT, this service is stop.
-            Runnable stopLocationListenerRunnable = new Runnable() {
-                public void run() {
-                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                    }
-                    else {
-                        if (mLocationManager != null) {
-                            mLocationManager.removeUpdates(locationListener);
-                        }
-                    }
-                    stopSelf();
-                }
-            };
-            Handler stopLocationListenerHandler = new Handler();
-            stopLocationListenerHandler.postDelayed(stopLocationListenerRunnable, LOCATION_TIMEOUT);
-        } else {
+            registerLocationUpdates(widgetId, startId);
+       } else {
             Log.i("Service", "Update address=" + geoInfo.getAddress() + " app widget id=" + widgetId);
 
-            mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+            mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
         }
     }
 
-    private void registerLocationUpdates(final int widgetId) {
+    private void registerLocationUpdates(final int widgetId, final int startId) {
         if (mLocationManager == null) {
             mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         }
 
         try {
             // once widget update by last location
-            Location lastLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location lastLoc = mLocationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             if (lastLoc != null) {
-                Log.i("Service", "success last location from NETWORK");
+                Log.i("Service", "success last location from PASSIVE");
             } else {
-                lastLoc = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                Log.i("Service", "success last location from gps");
+                lastLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (lastLoc != null) {
+                    Log.i("Service", "success last location from NETWORK");
+                }
+                else {
+                    lastLoc = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if(lastLoc != null) {
+                        Log.i("Service", "success last location from GPS");
+                    }
+                }
             }
 
             TransWeather transWeather = getTransWeatherInfo(widgetId);
@@ -288,60 +276,34 @@ public class WidgetUpdateService extends Service {
                 mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, widgetId, -1));
             }
 
-            mAppWidgetId = Arrays.copyOf(mAppWidgetId, mAppWidgetId.length + 1);
-            mAppWidgetId[mAppWidgetId.length - 1] = widgetId;
+            Criteria criteria = new Criteria();
+            criteria.setPowerRequirement(Criteria.POWER_HIGH);
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
 
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300, 0, locationListener);
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+            mLocationManager.requestSingleUpdate(criteria, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    final double lon = location.getLongitude();
+                    final double lat = location.getLatitude();
+                    Log.i("Service", "widgetId: "+widgetId+" startId: "+startId+", Loc listen lat: " + lat + ", lon: " + lon + ", provider: " + location.getProvider());
+                    mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, widgetId, startId));
+                }
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+                @Override
+                public void onProviderEnabled(String provider) {
+                }
+                @Override
+                public void onProviderDisabled(String provider) {
+                }
+            }, null);
 
         } catch (SecurityException e) {
             Log.e("Service", e.toString());
             e.printStackTrace();
         }
     }
-
-    private final LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            final double lon = location.getLongitude();
-            final double lat = location.getLatitude();
-
-            Log.e("Service", "Loc listen lat : " + lat + ", lon: " + lon + " provider " + location.getProvider());
-
-            if (mIsLocationManagerRemoveUpdates == false) {
-                // for duplicated call do not occur.
-                // flag setting and method call.
-                mIsLocationManagerRemoveUpdates = true;
-
-                final Context context = getApplicationContext();
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                mLocationManager.removeUpdates(locationListener);
-
-                for (int i = 0; i < mAppWidgetId.length; i++) {
-                    GeoInfo geoInfo = getTransWeatherInfo(mAppWidgetId[i]).geoInfo;
-                    geoInfo.setLat(geoInfo.toNormalize(lat));
-                    geoInfo.setLng(geoInfo.toNormalize(lon));
-                    mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, mAppWidgetId[i], -1));
-                }
-                mAppWidgetId = Arrays.copyOf(mAppWidgetId, 0);
-                stopSelf();
-            }
-        }
-        public void onProviderDisabled(String provider) {
-        }
-        public void onProviderEnabled(String provider) {
-        }
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
 
     private static final String WIDGET_PREFS_NAME = "net.wizardfactory.todayweather.widget.Provider.WidgetProvider";
     private GeoInfo loadCurrentGeoInfo(Context context) {
@@ -377,6 +339,8 @@ public class WidgetUpdateService extends Service {
         json = gson.toJson(geoInfo);
         prefsEditor.putString("CurrentGeoInfo", json);
         prefsEditor.commit();
+
+        Log.i("Service", "Save geo info ="+geoInfo.toString());
     };
 
     /**
@@ -394,7 +358,7 @@ public class WidgetUpdateService extends Service {
      *
      * @param widgetId
      */
-    private void getGeoInfo(final int widgetId) {
+    private void getGeoInfo(final int widgetId, final int startId) {
         //load saved data
         //if geoinfo is same with saved
         //call msg_get_weather_info
@@ -405,7 +369,8 @@ public class WidgetUpdateService extends Service {
                    savedGeoInfo.getLng() == getTransWeatherInfo(widgetId).geoInfo.getLng()) {
                if (savedGeoInfo.getName() != null) {
                    Log.i("Service", "Use saved geoinfo="+savedGeoInfo.toString());
-                   mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+                   getTransWeatherInfo(widgetId).geoInfo = savedGeoInfo;
+                   mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
                    return;
                }
            }
@@ -430,10 +395,10 @@ public class WidgetUpdateService extends Service {
                     Log.i("Service", transWeather.geoInfo.getAddress());
 
                     if (transWeather.geoInfo.getCountry().equals("KR")) {
-                        mHandler.sendMessage(Message.obtain(null, MSG_GET_KR_ADDRESS, widgetId, -1));
+                        mHandler.sendMessage(Message.obtain(null, MSG_GET_KR_ADDRESS, widgetId, startId));
                     }
                     else {
-                        mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+                        mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
                     }
                 }
                 catch (Exception e) {
@@ -444,10 +409,10 @@ public class WidgetUpdateService extends Service {
         }).execute();
     }
 
-    private void getKrAddressInfo(final int widgetId) {
+    private void getKrAddressInfo(final int widgetId, final int startId) {
         Double lat = getTransWeatherInfo(widgetId).geoInfo.getLat();
         Double lng = getTransWeatherInfo(widgetId).geoInfo.getLng();
-        Log.i("Service", "lat : " + lat + ", lng " + lng);
+        Log.i("Service", "kr address info lat : " + lat + ", lng " + lng);
         String geoUrl = String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%.3f,%.3f&language=ko", lat, lng);
         new GetHttpsServerAysncTask(geoUrl, new AsyncCallback() {
             @Override
@@ -463,7 +428,7 @@ public class WidgetUpdateService extends Service {
                         throw new Exception("Fail to find dong address from google geo code");
                     }
                     getTransWeatherInfo(widgetId).geoInfo.setAddress(retAddr);
-                    mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
+                    mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
                 }
                 catch (Exception e) {
                     Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
@@ -473,7 +438,9 @@ public class WidgetUpdateService extends Service {
         }).execute();
     }
 
-    private void getWeatherInfo(final int widgetId) {
+    private void getWeatherInfo(final int widgetId, final int startId) {
+        Log.i("WidgetUpdateService", "get weather info widget="+widgetId);
+
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         if (transWeather.currentPosition) {
             this.saveCurrentGeoInfo(getApplicationContext(), transWeather.geoInfo);
@@ -481,6 +448,7 @@ public class WidgetUpdateService extends Service {
 
         GeoInfo geoInfo = transWeather.geoInfo;
         String url = null;
+        Log.i("WidgetUpdateService", "get weather info geo info="+geoInfo.toString());
 
         if (geoInfo.getCountry() == null || geoInfo.getCountry().equals("KR")) {
             String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
@@ -504,7 +472,7 @@ public class WidgetUpdateService extends Service {
             public void onPostExecute(String jsonStr) {
                 if (jsonStr != null && jsonStr.length() > 0) {
                     getTransWeatherInfo(widgetId).strJsonWeatherInfo = jsonStr;
-                    mHandler.sendMessage(Message.obtain(null, MSG_DRAW_WIDGET, widgetId, -1));
+                    mHandler.sendMessage(Message.obtain(null, MSG_DRAW_WIDGET, widgetId, startId));
                 }
                 else {
                     Log.e("Service", "weather json string is null or zero");
@@ -513,13 +481,20 @@ public class WidgetUpdateService extends Service {
         }).execute();
     }
 
-    private void updateWidget(int widgetId) {
+    private void updateWidget(int widgetId, final int startId) {
+        Log.i("WidgetUpdateService", "update widget="+widgetId);
+
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         if (transWeather.geoInfo.getCountry() == null || transWeather.geoInfo.getCountry().equals("KR")) {
             updateKrWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
         }
         else {
             updateWorldWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
+        }
+
+        if(startId >= 0) {
+            Log.i("WidgetUpdateService", "stopSelf startId="+startId);
+            stopSelf(startId);
         }
     }
 
@@ -633,7 +608,7 @@ public class WidgetUpdateService extends Service {
             Log.e("WidgetUpdateService", "jsonData is NULL");
             return;
         }
-        Log.i("Service", "jsonStr: " + jsonStr);
+        //Log.i("Service", "jsonStr: " + jsonStr);
 
         // parsing json string to weather class
         WeatherElement weatherElement = WeatherElement.parsingWeatherElementString2Json(jsonStr);

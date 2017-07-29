@@ -21,6 +21,7 @@ import org.apache.cordova.CordovaActivity;
  */
 public class WidgetMenuActivity extends CordovaActivity {
     private Context mContxt = null;
+    private static String TAG = "WidgetMenu";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     int mLayoutId = -1;
 
@@ -33,12 +34,18 @@ public class WidgetMenuActivity extends CordovaActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
-//            mAppWidgetId = extras.getInt(
-//                    AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+            mAppWidgetId = extras.getInt(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
             mLayoutId = extras.getInt("LAYOUT_ID", -1);
         }
 
-        Log.i("WidgetMenu", "app widget id="+mAppWidgetId);
+        //if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        //    Log.e(TAG, "invalid app widget id="+mAppWidgetId);
+        //    finish();
+        //    return;
+        //}
+
+        Log.i(TAG, "app widget id="+mAppWidgetId);
         setContentView(R.layout.widget_menu);
     }
 
@@ -77,8 +84,14 @@ public class WidgetMenuActivity extends CordovaActivity {
         ComponentName thisWidget = new ComponentName(mContxt, widgetProvider);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
 
+        //int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
+        //Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(layoutId);
+        //ComponentName thisWidget = new ComponentName(mContxt, widgetProvider);
+        //int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+
         Intent intent = new Intent(this, widgetProvider);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        //intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {mAppWidgetId});
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         intent.putExtra("ManualUpdate", true);
         sendBroadcast(intent);
