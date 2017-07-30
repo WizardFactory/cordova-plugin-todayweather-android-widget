@@ -1,5 +1,6 @@
 package net.wizardfactory.todayweather.widget;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -50,8 +51,6 @@ import java.util.Locale;
  * this result json string is parsed and draw to widget.
  */
 public class WidgetUpdateService extends Service {
-    // if find not location in this time, service is terminated.
-    private final static int LOCATION_TIMEOUT = 120 * 1000; //2mins
     private final static String SERVER_URL = "https://todayweather.wizardfactory.net";
     private final static String KMA_API_URL = "/v000803/town";
     private final static String WORLD_WEATHER_API_URL = "/ww/010000/current/2?gcode=";
@@ -98,7 +97,6 @@ public class WidgetUpdateService extends Service {
     class TransWeather {
         public int widgetId  = AppWidgetManager.INVALID_APPWIDGET_ID;
         public GeoInfo geoInfo = null;
-//        public String urlWeatherInfo = null;
         public String strJsonWeatherInfo = null;
         public boolean currentPosition = false;
     }
@@ -125,6 +123,19 @@ public class WidgetUpdateService extends Service {
             mTransWeatherInfoList.add(transWeather);
             return transWeather;
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.i("Service", "on Create");
+        startForeground(1, new Notification());
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i("Service", "on Destroy");
+        super.onDestroy();
     }
 
     @Override
@@ -302,6 +313,7 @@ public class WidgetUpdateService extends Service {
         } catch (SecurityException e) {
             Log.e("Service", e.toString());
             e.printStackTrace();
+            stopSelf(startId);
         }
     }
 
@@ -433,6 +445,7 @@ public class WidgetUpdateService extends Service {
                 catch (Exception e) {
                     Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
                     Log.e("Service", e.toString());
+                    stopSelf(startId);
                 }
             }
         }).execute();
@@ -464,6 +477,7 @@ public class WidgetUpdateService extends Service {
 
         if (url == null) {
             Log.e("Service", "url is null on get weather info");
+            stopSelf(startId);
             return;
         }
 
@@ -476,6 +490,7 @@ public class WidgetUpdateService extends Service {
                 }
                 else {
                     Log.e("Service", "weather json string is null or zero");
+                    stopSelf(startId);
                 }
             }
         }).execute();

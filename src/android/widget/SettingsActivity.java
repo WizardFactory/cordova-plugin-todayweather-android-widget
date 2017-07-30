@@ -1,6 +1,5 @@
 package net.wizardfactory.todayweather.widget;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -95,39 +94,6 @@ public class SettingsActivity extends PreferenceActivity {
         return pendingIntent;
     }
 
-    /**
-     * alarm 등록은 여기서 하지만, cancel은 widget provider에서 함
-     * @param context
-     * @param appWidgetId
-     * @param updateInterval
-     */
-    private void setAlarmManager(Context context, int appWidgetId, long updateInterval) {
-        AlarmManager alarmManager;
-
-        alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
-        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-        if (pendingIntent != null) {
-            if (updateInterval > 0) {
-                Log.i(TAG, "set alarm interval="+updateInterval);
-                long updateTime = System.currentTimeMillis() + updateInterval*60*1000;
-                alarmManager.setRepeating(AlarmManager.RTC, updateTime, updateInterval*60*1000, pendingIntent);
-            }
-        }
-    }
-
-    private void cancelAlarmManager(Context context, int appWidgetId) {
-        AlarmManager alarmManager;
-        alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
-        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-        if (pendingIntent != null) {
-            Log.i(TAG, "cancel alarm widgetId="+appWidgetId);
-            pendingIntent.cancel();
-            alarmManager.cancel(pendingIntent);
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.settings_ok) {
@@ -147,10 +113,6 @@ public class SettingsActivity extends PreferenceActivity {
 
             com.kizitonwose.colorpreference.ColorPreference fontColor = (com.kizitonwose.colorpreference.ColorPreference)settingsFragment.findPreference("fontColor");
             saveFontColorPref(context, mAppWidgetId, fontColor.getValue());
-
-
-            cancelAlarmManager(context, mAppWidgetId);
-            setAlarmManager(context, mAppWidgetId, Integer.parseInt(refreshInterval.getValue()));
 
             // It is the responsibility of the configuration activity to update the app widget
             updateWidget(context);
