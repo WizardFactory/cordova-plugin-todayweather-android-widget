@@ -54,8 +54,8 @@ public class GetHttpsServerAysncTask extends AsyncTask<String, String, String> {
         try {
             URL url = new URL(strUrl);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(3000);
-            urlConnection.setConnectTimeout(3000);
+            urlConnection.setReadTimeout(30000);
+            urlConnection.setConnectTimeout(30000);
             urlConnection.setRequestMethod("GET");
             urlConnection.setDoInput(true);
 

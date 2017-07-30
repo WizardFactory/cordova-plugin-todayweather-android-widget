@@ -1,10 +1,13 @@
 package net.wizardfactory.todayweather.widget;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
@@ -50,8 +53,6 @@ import java.util.Locale;
  * this result json string is parsed and draw to widget.
  */
 public class WidgetUpdateService extends Service {
-    // if find not location in this time, service is terminated.
-    private final static int LOCATION_TIMEOUT = 120 * 1000; //2mins
     private final static String SERVER_URL = "https://todayweather.wizardfactory.net";
     private final static String KMA_API_URL = "/v000803/town";
     private final static String WORLD_WEATHER_API_URL = "/ww/010000/current/2?gcode=";
@@ -76,6 +77,13 @@ public class WidgetUpdateService extends Service {
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
+
+            if (isNetworkConnected(getApplicationContext()) == false) {
+                //keep current state
+                keepUpdateState(msg.what, msg.arg1, msg.arg2);
+                return;
+            }
+
             switch (msg.what) {
                 case MSG_GET_GEOINFO:
                     getGeoInfo(msg.arg1, msg.arg2);
@@ -98,9 +106,10 @@ public class WidgetUpdateService extends Service {
     class TransWeather {
         public int widgetId  = AppWidgetManager.INVALID_APPWIDGET_ID;
         public GeoInfo geoInfo = null;
-//        public String urlWeatherInfo = null;
         public String strJsonWeatherInfo = null;
         public boolean currentPosition = false;
+        public int startId;
+        public int msgWhat;
     }
 
     private List<TransWeather> mTransWeatherInfoList = new ArrayList<TransWeather>();
@@ -127,6 +136,44 @@ public class WidgetUpdateService extends Service {
         }
     }
 
+    private BroadcastReceiver mBroadcastReceiver;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.i("Service", "on Create");
+        startForeground(1, new Notification());
+
+        mHandler = new IncomingHandler();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("Service", "on Receive from broadcast receiver");
+                if (isNetworkConnected(getApplicationContext())  == true) {
+                    for(TransWeather transWeather : mTransWeatherInfoList){
+                        if (transWeather.msgWhat >= MSG_GET_GEOINFO) {
+                            Log.i("Service", "retry widgetId:"+transWeather.widgetId+", startId="+transWeather.startId+", what="+transWeather.msgWhat);
+                            mHandler.sendMessage(Message.obtain(null, transWeather.msgWhat, transWeather.widgetId, transWeather.startId));
+                        }
+                    }
+                }
+            }
+        };
+
+        registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i("Service", "on Destroy");
+        unregisterReceiver(mBroadcastReceiver);
+        super.onDestroy();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("Service", "on Start Command");
@@ -151,8 +198,6 @@ public class WidgetUpdateService extends Service {
             stopSelf(startId);
             return START_NOT_STICKY;
         }
-
-        mHandler = new IncomingHandler();
 
         startUpdate(widgetId, startId);
 
@@ -302,7 +347,16 @@ public class WidgetUpdateService extends Service {
         } catch (SecurityException e) {
             Log.e("Service", e.toString());
             e.printStackTrace();
+            stopSelf(startId);
         }
+    }
+
+    private void keepUpdateState(int what, int widgetId, int startId) {
+        Log.i("Service", "keep transmission state widgetId:" + widgetId + ", startId:"+startId+", what="+what);
+        TransWeather transWeather = getTransWeatherInfo(widgetId);
+        transWeather.startId = startId;
+        transWeather.msgWhat = what;
+        return;
     }
 
     private static final String WIDGET_PREFS_NAME = "net.wizardfactory.todayweather.widget.Provider.WidgetProvider";
@@ -433,6 +487,7 @@ public class WidgetUpdateService extends Service {
                 catch (Exception e) {
                     Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
                     Log.e("Service", e.toString());
+                    stopSelf(startId);
                 }
             }
         }).execute();
@@ -464,6 +519,7 @@ public class WidgetUpdateService extends Service {
 
         if (url == null) {
             Log.e("Service", "url is null on get weather info");
+            stopSelf(startId);
             return;
         }
 
@@ -476,6 +532,7 @@ public class WidgetUpdateService extends Service {
                 }
                 else {
                     Log.e("Service", "weather json string is null or zero");
+                    stopSelf(startId);
                 }
             }
         }).execute();

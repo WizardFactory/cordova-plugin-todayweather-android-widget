@@ -88,32 +88,35 @@ public class TwWidgetProvider extends AppWidgetProvider {
 
         PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
         if (pendingIntent != null) {
-            Log.i(TAG, "cancel alarm widgetId="+appWidgetId);
+            Log.i(TAG, "widgetId:"+appWidgetId+", cancelAlarm:true");
             pendingIntent.cancel();
             mAlarmManager.cancel(pendingIntent);
         }
     }
 
-//    private void setAlarmManager(Context context, int appWidgetId, long updateInterval) {
-//        if (mAlarmManager == null) {
-//            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-//        }
-//
-//        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-//        if (pendingIntent != null) {
-//            if (updateInterval > 0) {
-//                Log.i(TAG, "set alarm interval="+updateInterval);
-//                long updateTime = System.currentTimeMillis() + updateInterval*60*1000;
-//                mAlarmManager.set(AlarmManager.RTC, updateTime, pendingIntent);
-//            }
-//        }
-//    }
+    private void setAlarmManager(Context context, int appWidgetId) {
+        if (mAlarmManager == null) {
+            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        }
+
+        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+        if (pendingIntent != null) {
+            long updateInterval = SettingsActivity.loadUpdateIntervalPref(context, appWidgetId);
+            if (updateInterval > 0) {
+                Log.i(TAG, "widgetId: "+appWidgetId+", setAlarmMinInterval: "+updateInterval);
+                long updateTime = System.currentTimeMillis() + updateInterval;
+                mAlarmManager.setRepeating(AlarmManager.RTC, updateTime, updateInterval, pendingIntent);
+            }
+        }
+    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
+            cancelAlarmManager(context, appWidgetId);
+            setAlarmManager(context, appWidgetId);
         }
     }
 
