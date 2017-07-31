@@ -418,16 +418,23 @@ public class WidgetUpdateService extends Service {
         //call msg_get_weather_info
 
         GeoInfo savedGeoInfo = this.loadCurrentGeoInfo(getApplicationContext());
-        if(savedGeoInfo != null && savedGeoInfo.getLat() != 0) {
-           if (savedGeoInfo.getLat() == getTransWeatherInfo(widgetId).geoInfo.getLat() &&
-                   savedGeoInfo.getLng() == getTransWeatherInfo(widgetId).geoInfo.getLng()) {
-               if (savedGeoInfo.getName() != null) {
-                   Log.i("Service", "Use saved geoinfo="+savedGeoInfo.toString());
-                   getTransWeatherInfo(widgetId).geoInfo = savedGeoInfo;
-                   mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
-                   return;
-               }
-           }
+        if (savedGeoInfo == null) {
+            Log.i("UpdateService", "savedGeoinfo: null");
+        }
+        else {
+            Log.i("UpdateService", "savedGeoinfo:"+savedGeoInfo.toString());
+        }
+
+        if((savedGeoInfo != null) && (savedGeoInfo.getLat() != 0)) {
+            if (savedGeoInfo.getLat() == getTransWeatherInfo(widgetId).geoInfo.getLat() &&
+                    savedGeoInfo.getLng() == getTransWeatherInfo(widgetId).geoInfo.getLng()) {
+                if (savedGeoInfo.getName() != null) {
+                    Log.i("Service", "Use saved geoinfo="+savedGeoInfo.toString());
+                    getTransWeatherInfo(widgetId).geoInfo = savedGeoInfo;
+                    mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
+                    return;
+                }
+            }
         }
 
         String lang = Locale.getDefault().getLanguage();

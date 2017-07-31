@@ -72,7 +72,7 @@ public class TwWidgetProvider extends AppWidgetProvider {
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetId});
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, appWidgetId, intent, 0);
         return pendingIntent;
     }
 
@@ -103,7 +103,7 @@ public class TwWidgetProvider extends AppWidgetProvider {
         if (pendingIntent != null) {
             long updateInterval = SettingsActivity.loadUpdateIntervalPref(context, appWidgetId);
             if (updateInterval > 0) {
-                Log.i(TAG, "widgetId: "+appWidgetId+", setAlarmMinInterval: "+updateInterval);
+                Log.i(TAG, "widgetId: "+appWidgetId+", setAlarmInterval: "+updateInterval);
                 long updateTime = System.currentTimeMillis() + updateInterval;
                 mAlarmManager.setRepeating(AlarmManager.RTC, updateTime, updateInterval, pendingIntent);
             }

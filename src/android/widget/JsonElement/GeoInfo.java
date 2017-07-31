@@ -188,7 +188,7 @@ public class GeoInfo {
 
     @Override
     public String toString() {
-        return "name:"+this.getName()+", country="+this.getCountry()+", address="+
-                this.getAddress()+ ", lat="+this.getLat()+", lng="+this.getLng();
+        return "{name:"+this.getName()+", country:"+this.getCountry()+", address:"+
+                this.getAddress()+ ", lat:"+this.getLat()+", lng:"+this.getLng()+"}";
     }
 }
