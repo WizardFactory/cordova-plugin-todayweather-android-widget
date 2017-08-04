@@ -31,7 +31,7 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         // Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.apppreferences);
+        addPreferencesFromResource(R.xml.widget_preferences);
 
         ListPreference location = (ListPreference)findPreference("location");
         JSONArray cityListArray = SettingsActivity.loadCityListPref(getActivity());
