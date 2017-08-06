@@ -211,7 +211,14 @@ public class WidgetUpdateService extends Service {
 
     private boolean isNetworkConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
+        try {
+            return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
+        }
+        catch (Exception e) {
+            Log.e("Service", "Fail to get active network info");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void startUpdate(final int widgetId, final int startId) {
@@ -693,11 +700,25 @@ public class WidgetUpdateService extends Service {
             return;
         }
 
-        // make today, yesterday weather info class
-        WidgetData wData = weatherElement.makeWidgetData();
-        if (locationName != null) {
-            wData.setLoc(locationName);
+        WidgetData wData = null;
+
+        try {
+            // make today, yesterday weather info class
+            wData = weatherElement.makeWidgetData();
+            if (locationName != null) {
+                wData.setLoc(locationName);
+            }
         }
+        catch (Exception e) {
+            Log.e("Service", "Exception: " + e.getMessage());
+            return;
+        }
+
+        if (wData == null) {
+            Log.e("Service", "weather data is null");
+            return;
+        }
+
         Context context = getApplicationContext();
         // input weather content to widget layout
 
