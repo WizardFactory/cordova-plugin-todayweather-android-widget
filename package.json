@@ -1,6 +1,6 @@
 {
   "name": "todayweatherAndroidWidget",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "todayweather android widget",
   "cordova": {
     "id": "cordova-plugin-todayweather-android-widget",
