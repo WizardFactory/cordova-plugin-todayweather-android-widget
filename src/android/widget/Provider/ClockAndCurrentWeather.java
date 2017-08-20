@@ -52,6 +52,8 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             views.setTextColor(R.id.time, fontColor);
             views.setTextColor(R.id.am_pm, fontColor);
         }
+        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
+        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);

@@ -55,6 +55,8 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
             views.setTextColor(labelIds[i], fontColor);
             views.setTextColor(tempIds[i], fontColor);
         }
+        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
+        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);

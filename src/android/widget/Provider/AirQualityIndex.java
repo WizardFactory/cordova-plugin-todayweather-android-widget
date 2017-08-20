@@ -36,9 +36,9 @@ public class AirQualityIndex extends TwWidgetProvider {
                 views.setTextViewTextSize(R.id.label_aqi, TypedValue.COMPLEX_UNIT_DIP, 18);
                 views.setTextViewTextSize(R.id.label_pm10, TypedValue.COMPLEX_UNIT_DIP, 18);
                 views.setTextViewTextSize(R.id.label_pm25, TypedValue.COMPLEX_UNIT_DIP, 18);
-                views.setTextViewTextSize(R.id.aqi_str, TypedValue.COMPLEX_UNIT_DIP, 12);
-                views.setTextViewTextSize(R.id.pm10_str, TypedValue.COMPLEX_UNIT_DIP, 12);
-                views.setTextViewTextSize(R.id.pm25_str, TypedValue.COMPLEX_UNIT_DIP, 12);
+                views.setTextViewTextSize(R.id.aqi_str, TypedValue.COMPLEX_UNIT_DIP, 18);
+                views.setTextViewTextSize(R.id.pm10_str, TypedValue.COMPLEX_UNIT_DIP, 18);
+                views.setTextViewTextSize(R.id.pm25_str, TypedValue.COMPLEX_UNIT_DIP, 18);
             }
         }
 
@@ -52,6 +52,8 @@ public class AirQualityIndex extends TwWidgetProvider {
         views.setTextColor(R.id.aqi_str, fontColor);
         views.setTextColor(R.id.pm10_str, fontColor);
         views.setTextColor(R.id.pm25_str, fontColor);
+        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
+        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
