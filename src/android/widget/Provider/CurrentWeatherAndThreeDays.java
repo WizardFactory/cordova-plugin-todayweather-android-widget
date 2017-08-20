@@ -1,6 +1,5 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -15,8 +14,7 @@ import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.Calendar;
 
 /**
  * Implementation of App Widget functionality.
@@ -26,28 +24,6 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
     public CurrentWeatherAndThreeDays() {
         TAG = "W4x1 CurrentWeatherAndThreeDays";
         mLayoutId = R.layout.current_weather_and_three_days;
-    }
-
-    @Override
-    protected void setWidgetStyle(AppWidgetManager appWidgetManager, int appWidgetId, RemoteViews views) {
-        super.setWidgetStyle(appWidgetManager, appWidgetId, views);
-
-        if (Build.MANUFACTURER.equals("samsung")) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.tmn_tmx_pm_pp, TypedValue.COMPLEX_UNIT_DIP, 18);
-                views.setTextViewTextSize(R.id.current_temperature, TypedValue.COMPLEX_UNIT_DIP, 48);
-
-                int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow};
-                int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature, R.id.tomorrow_temperature};
-
-                for (int i = 0; i < 3; i++) {
-                    views.setTextViewTextSize(labelIds[i], TypedValue.COMPLEX_UNIT_DIP, 16);
-                    views.setTextViewTextSize(tempIds[i], TypedValue.COMPLEX_UNIT_DIP, 18);
-                }
-            }
-        }
     }
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
@@ -79,6 +55,10 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
             views.setTextColor(labelIds[i], fontColor);
             views.setTextColor(tempIds[i], fontColor);
         }
+
+        TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
@@ -98,16 +78,9 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
             return;
         }
 
-        Date pubDate = currentData.getPubDate();
-        if (pubDate != null) {
-            SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-            if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                TimeZone tz = TimeZone.getDefault();
-                int offset = tz.getRawOffset() - currentData.getTimeZoneOffsetMS();
-                pubDate.setTime(pubDate.getTime() + offset);
-            }
-            views.setTextViewText(R.id.pubdate, context.getString(R.string.update) + " " + transFormat.format(pubDate));
-        }
+        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
+                transFormat.format(Calendar.getInstance().getTime()));
 
         String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
         views.setTextViewText(R.id.current_temperature, tempStr+"°");
@@ -138,7 +111,7 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
                 day_temperature += Math.round(temp)+"°";;
             }
             if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
-                day_temperature += " ";
+                day_temperature += "/";
                 temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
                 day_temperature += Math.round(temp)+"°";;
             }

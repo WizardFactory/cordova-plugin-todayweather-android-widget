@@ -33,4 +33,5 @@
  <string name="background_color">배경색</string>
  <string name="font_color">글자색</string>
  <string name="add_locations">앱에서 즐겨찾는 지역을 추가해주세요</string>
+ <string name="settings">설정</string>
 </resources>

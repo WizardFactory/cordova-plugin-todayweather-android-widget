@@ -222,6 +222,9 @@ public class WeatherElement {
             current.setAqiGrade(weatherCurrent.getAqiGrade());
             current.setPm10Grade(weatherCurrent.getPm10Grade());
             current.setPm25Grade(weatherCurrent.getPm25Grade());
+            current.setAqiValue(weatherCurrent.getAqiValue());
+            current.setPm10Value(weatherCurrent.getPm10Value());
+            current.setPm25Value(weatherCurrent.getPm25Value());
             current.setAqiStr(weatherCurrent.getAqiStr());
             current.setPm10Str(weatherCurrent.getPm10Str());
             current.setPm25Str(weatherCurrent.getPm25Str());

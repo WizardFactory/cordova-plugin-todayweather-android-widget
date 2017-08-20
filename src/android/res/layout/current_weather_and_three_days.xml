@@ -4,43 +4,65 @@
     android:id="@+id/bg_layout"
     android:padding="@dimen/widget_margin">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="12dp"
-        android:includeFontPadding="false"
-        android:id="@+id/location"
+    <ImageView
+        android:layout_width="12dp"
+        android:layout_height="12dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="4dp" />
+        android:tint="#ffffffff"
+        android:scaleType="fitCenter"
+        android:id="@+id/ic_settings"
+        android:src="@drawable/ic_settings_black_24dp"/>
+
+    <ImageView
+        android:id="@+id/ic_refresh"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:tint="#ffffffff"
+        android:scaleType="fitCenter"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_refresh_black_24dp"
+        />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/loading"
         android:textSize="12dp"
-        android:includeFontPadding="false"
         android:id="@+id/pubdate"
+        android:includeFontPadding="false"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="4dp" />
+        android:layout_toLeftOf="@id/ic_refresh"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/location"
+        android:text=""
+        android:textSize="12dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:layout_toLeftOf="@id/pubdate"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/ic_settings" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/weather_layout"
+        android:orientation="horizontal"
         android:layout_below="@+id/location"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="4dp"
         android:layout_marginTop="4dp">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:gravity="center_vertical"
             android:layout_gravity="center_vertical"
             android:layout_weight="4">
@@ -49,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textSize="14dp"
+                android:textSize="16dp"
                 android:includeFontPadding="false"
                 android:id="@+id/tmn_tmx_pm_pp"
                 android:layout_below="@+id/location"
@@ -63,7 +85,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="32dp"
+                    android:textSize="34dp"
                     android:includeFontPadding="false"
                     android:id="@+id/current_temperature"
                     android:layout_alignParentTop="true"
@@ -91,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:includeFontPadding="false"
                 android:id="@+id/label_yesterday"
                 android:layout_gravity="center_horizontal" />
@@ -125,7 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:includeFontPadding="false"
                 android:id="@+id/label_today"
                 android:layout_gravity="center_horizontal" />
@@ -159,7 +181,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:includeFontPadding="false"
                 android:id="@+id/label_tomorrow"
                 android:layout_gravity="center_horizontal" />

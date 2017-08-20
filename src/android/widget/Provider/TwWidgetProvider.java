@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import net.wizardfactory.todayweather.MainActivity;
 import net.wizardfactory.todayweather.R;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 import net.wizardfactory.todayweather.widget.WidgetMenuActivity;
@@ -31,9 +32,6 @@ public class TwWidgetProvider extends AppWidgetProvider {
         mLayoutId = -1;
     }
 
-    protected void setWidgetStyle(AppWidgetManager appWidgetManager, int appWidgetId, RemoteViews views) {
-    }
-
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
         int fransparency = SettingsActivity.loadTransparencyPref(context, appWidgetId);
         int bgColor = SettingsActivity.loadBgColorPref(context, appWidgetId);
@@ -42,21 +40,56 @@ public class TwWidgetProvider extends AppWidgetProvider {
         views.setInt(R.id.bg_layout, "setBackgroundColor", color);
     }
 
-    public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        Log.i(TAG, "update app widget widgetId="+appWidgetId);
-
-        // Create an Intent to launch menu
+    /**
+     * call by WidgetUpdateService
+     * @param context
+     * @param appWidgetId
+     * @param views
+     */
+    static public void setPendingIntentToMenu(Context context, int appWidgetId, RemoteViews views) {
         Intent intent = new Intent(context, WidgetMenuActivity.class);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        intent.putExtra("LAYOUT_ID", mLayoutId);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.bg_layout, pendingIntent);
+    }
+
+    static public void setPendingIntentToSettings(Context context, int appWidgetId, RemoteViews views) {
+        Intent intent = new Intent(context, SettingsActivity.class);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.ic_settings, pendingIntent);
+        views.setOnClickPendingIntent(R.id.location, pendingIntent);
+    }
+
+    static public void setPendingIntentToRefresh(Context context, int appWidgetId, RemoteViews views) {
+        Intent serviceIntent = new Intent(context, WidgetUpdateService.class);
+        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        PendingIntent pendingIntent = PendingIntent.getService(context, appWidgetId, serviceIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.ic_refresh, pendingIntent);
+        views.setOnClickPendingIntent(R.id.pubdate, pendingIntent);
+    }
+
+    static public void setPendingIntentToApp(Context context, int appWidgetId, RemoteViews views) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.weather_layout, pendingIntent);
+    }
+
+    public void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+        Log.i(TAG, "update app widget widgetId="+appWidgetId);
 
         // Get the layout for the App Widget and attach an on-click listener
         RemoteViews views = new RemoteViews(context.getPackageName(), mLayoutId);
 
-        setWidgetStyle(appWidgetManager, appWidgetId, views);
 
-        views.setOnClickPendingIntent(R.id.bg_layout, pendingIntent);
+        setWidgetStyle(context, appWidgetId, views);
 
         // Tell the AppWidgetManager to perform an update on the current app widget
         appWidgetManager.updateAppWidget(appWidgetId, views);

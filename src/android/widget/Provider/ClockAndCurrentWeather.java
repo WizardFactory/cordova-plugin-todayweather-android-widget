@@ -1,11 +1,9 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import net.wizardfactory.todayweather.R;
@@ -16,7 +14,7 @@ import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
@@ -27,23 +25,6 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
     public ClockAndCurrentWeather() {
         TAG = "W3x1 ClockAndCurrentWeather";
         mLayoutId = R.layout.clock_and_current_weather;
-    }
-
-    @Override
-    protected void setWidgetStyle(AppWidgetManager appWidgetManager, int appWidgetId, RemoteViews views) {
-        super.setWidgetStyle(appWidgetManager, appWidgetId, views);
-
-        if (Build.MANUFACTURER.equals("samsung")) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_DIP, 18);
-                views.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_DIP, 46);
-                views.setTextViewTextSize(R.id.am_pm, TypedValue.COMPLEX_UNIT_DIP, 14);
-                views.setTextViewTextSize(R.id.tmn_tmx_pm_pp, TypedValue.COMPLEX_UNIT_DIP, 18);
-                views.setTextViewTextSize(R.id.current_temperature, TypedValue.COMPLEX_UNIT_DIP, 46);
-            }
-        }
     }
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
@@ -71,6 +52,10 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             views.setTextColor(R.id.time, fontColor);
             views.setTextColor(R.id.am_pm, fontColor);
         }
+
+        TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
@@ -90,16 +75,9 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             return;
         }
 
-        Date pubDate = currentData.getPubDate();
-        if (pubDate != null) {
-            SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-            if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                TimeZone tz = TimeZone.getDefault();
-                int offset = tz.getRawOffset() - currentData.getTimeZoneOffsetMS();
-                pubDate.setTime(pubDate.getTime()+offset);
-            }
-            views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+transFormat.format(pubDate));
-        }
+        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
+                transFormat.format(Calendar.getInstance().getTime()));
 
         if (Build.VERSION.SDK_INT >= 17) {
             if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
@@ -137,7 +115,7 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             today_tmn_tmx_pm_pp += String.valueOf(Math.round(temp))+"°";
         }
         if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL)  {
-            today_tmn_tmx_pm_pp += " ";
+            today_tmn_tmx_pm_pp += "/";
             temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
             today_tmn_tmx_pm_pp += String.valueOf(Math.round(temp))+"°";
         }
@@ -152,14 +130,14 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             int pm10Grade = data.getPm10Grade();
             int pm25Grade = data.getPm25Grade();
             if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                today_tmn_tmx_pm_pp += " ";
+                today_tmn_tmx_pm_pp += " :::";
                 if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
                     today_tmn_tmx_pm_pp += convertGradeToStr(context, pm25Grade);
                 } else {
                     today_tmn_tmx_pm_pp += convertGradeToStr(context, pm10Grade);
                 }
             } else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                today_tmn_tmx_pm_pp += " ";
+                today_tmn_tmx_pm_pp += " :::";
                 today_tmn_tmx_pm_pp += convertGradeToStr(context, pm25Grade);
             }
         }

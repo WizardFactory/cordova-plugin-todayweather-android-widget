@@ -1,6 +1,5 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
@@ -25,19 +24,6 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
         mLayoutId = R.layout.w1x1_current_weather;
     }
 
-    @Override
-    protected void setWidgetStyle(AppWidgetManager appWidgetManager, int appWidgetId, RemoteViews views) {
-        super.setWidgetStyle(appWidgetManager, appWidgetId, views);
-
-        if (Build.MANUFACTURER.equals("samsung")) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 14);
-                views.setTextViewTextSize(R.id.current_pm, TypedValue.COMPLEX_UNIT_DIP, 20);
-                views.setTextViewTextSize(R.id.current_temperature, TypedValue.COMPLEX_UNIT_DIP, 20);
-            }
-        }
-    }
-
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
         TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
 
@@ -52,6 +38,8 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
         views.setTextColor(R.id.location, fontColor);
         views.setTextColor(R.id.current_temperature, fontColor);
+
+        TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {

@@ -58,7 +58,7 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
             String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
             tempMax = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getMaxTemperature());
             tempMin = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getMinTemperature());
-            views.setTextViewText(R.id.yesterday_temperature, tempStr);
+            views.setTextViewText(R.id.yesterday_temperature, tempStr+"°");
             views.setTextViewText(R.id.today_high_temperature, String.valueOf(Math.round(tempMax)));
             views.setTextViewText(R.id.today_low_temperature, String.valueOf(Math.round(tempMin)));
 //                views.setTextViewText(R.id.cmp_yesterday_temperature, currentData.getSummary());

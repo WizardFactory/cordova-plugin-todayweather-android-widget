@@ -1,6 +1,5 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -15,8 +14,7 @@ import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.Calendar;
 
 /**
  * Implementation of App Widget functionality.
@@ -26,28 +24,6 @@ public class DailyWeather extends TwWidgetProvider {
     public DailyWeather() {
         TAG = "W4x1 DailyWeather";
         mLayoutId = R.layout.daily_weather;
-    }
-
-    @Override
-    protected void setWidgetStyle(AppWidgetManager appWidgetManager, int appWidgetId, RemoteViews views) {
-        super.setWidgetStyle(appWidgetManager, appWidgetId, views);
-
-        if (Build.MANUFACTURER.equals("samsung")) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow,
-                        R.id.label_twodays, R.id.label_threedays};
-                int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature,
-                        R.id.tomorrow_temperature, R.id.twodays_temperature, R.id.threedays_temperature};
-
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
-
-                for (int i = 0; i < 5; i++) {
-                    views.setTextViewTextSize(labelIds[i], TypedValue.COMPLEX_UNIT_DIP, 16);
-                    views.setTextViewTextSize(tempIds[i], TypedValue.COMPLEX_UNIT_DIP, 18);
-                }
-            }
-        }
     }
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
@@ -77,6 +53,10 @@ public class DailyWeather extends TwWidgetProvider {
             views.setTextColor(labelIds[i], fontColor);
             views.setTextColor(tempIds[i], fontColor);
         }
+
+        TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
@@ -96,16 +76,9 @@ public class DailyWeather extends TwWidgetProvider {
             return;
         }
 
-        Date pubDate = currentData.getPubDate();
-        if (pubDate != null) {
-            SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-            if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                TimeZone tz = TimeZone.getDefault();
-                int offset = tz.getRawOffset() - currentData.getTimeZoneOffsetMS();
-                pubDate.setTime(pubDate.getTime() + offset);
-            }
-            views.setTextViewText(R.id.pubdate, context.getString(R.string.update) + " " + transFormat.format(pubDate));
-        }
+        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
+                transFormat.format(Calendar.getInstance().getTime()));
 
         views.setTextViewText(R.id.label_yesterday, context.getString(R.string.yesterday));
         views.setTextViewText(R.id.label_today, context.getString(R.string.today));
@@ -130,7 +103,7 @@ public class DailyWeather extends TwWidgetProvider {
                 day_temperature += Math.round(temp)+"°";;
             }
             if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
-                day_temperature += " ";
+                day_temperature += "/";
                 temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
                 day_temperature += Math.round(temp)+"°";;
             }
@@ -145,7 +118,7 @@ public class DailyWeather extends TwWidgetProvider {
             }
 
             if (i > 2 && dayData.getDate() != null) {
-                SimpleDateFormat transFormat = new SimpleDateFormat("dd");
+                transFormat = new SimpleDateFormat("dd");
                 views.setTextViewText(labelIds[i], transFormat.format(dayData.getDate()));
             }
         }
