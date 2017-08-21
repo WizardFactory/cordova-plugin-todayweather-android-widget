@@ -1,6 +1,5 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -15,8 +14,7 @@ import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.Calendar;
 
 /**
  * Implementation of App Widget functionality.
@@ -26,21 +24,6 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
     public W2x1CurrentWeather() {
         TAG = "W2x1 CurrentWeather";
         mLayoutId = R.layout.w2x1_current_weather;
-    }
-
-    @Override
-    protected void setWidgetStyle(AppWidgetManager appWidgetManager, int appWidgetId, RemoteViews views) {
-        super.setWidgetStyle(appWidgetManager, appWidgetId, views);
-
-        if (Build.MANUFACTURER.equals("samsung")) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.today_temperature, TypedValue.COMPLEX_UNIT_DIP, 20);
-                views.setTextViewTextSize(R.id.current_pm, TypedValue.COMPLEX_UNIT_DIP, 20);
-                views.setTextViewTextSize(R.id.current_temperature, TypedValue.COMPLEX_UNIT_DIP, 48);
-            }
-        }
     }
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
@@ -62,6 +45,14 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
         views.setTextColor(R.id.current_temperature, fontColor);
         views.setTextColor(R.id.pubdate, fontColor);
         views.setTextColor(R.id.current_pm, fontColor);
+
+        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
+        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
+
+        //TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
+        TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
@@ -80,16 +71,8 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
             return;
         }
 
-        Date pubDate = currentData.getPubDate();
-        if (pubDate != null) {
-            SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-            if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                TimeZone tz = TimeZone.getDefault();
-                int offset = tz.getRawOffset() - currentData.getTimeZoneOffsetMS();
-                pubDate.setTime(pubDate.getTime() + offset);
-            }
-            views.setTextViewText(R.id.pubdate, context.getString(R.string.update) + " " + transFormat.format(pubDate));
-        }
+        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        views.setTextViewText(R.id.pubdate, transFormat.format(Calendar.getInstance().getTime()));
 
         String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
         views.setTextViewText(R.id.current_temperature, tempStr+"°");
@@ -103,21 +86,21 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
         double rn1 = currentData.getRn1();
         if (rn1 != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL && rn1 != 0 ) {
             String precipStr = localUnits.convertUnitsStr(wData.getUnits().getPrecipitationUnit(), rn1);
-            views.setTextViewText(R.id.current_pm, precipStr + localUnits.getPrecipitationUnit());
+            views.setTextViewText(R.id.current_pm, " "+precipStr + localUnits.getPrecipitationUnit());
         }
         else {
             int pm10Grade = currentData.getPm10Grade();
             int pm25Grade = currentData.getPm25Grade();
             if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
                 if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                    views.setTextViewText(R.id.current_pm, "::: "+convertGradeToStr(context, pm25Grade));
+                    views.setTextViewText(R.id.current_pm, " :::"+convertGradeToStr(context, pm25Grade));
                 }
                 else {
-                    views.setTextViewText(R.id.current_pm, "::: "+convertGradeToStr(context, pm10Grade));
+                    views.setTextViewText(R.id.current_pm, " :::"+convertGradeToStr(context, pm10Grade));
                 }
             }
             else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                views.setTextViewText(R.id.current_pm, "::: "+convertGradeToStr(context, pm25Grade));
+                views.setTextViewText(R.id.current_pm, " :::"+convertGradeToStr(context, pm25Grade));
             }
         }
 
@@ -130,7 +113,7 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
             today_temperature += String.valueOf(Math.round(temp))+"°";
         }
         if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL)  {
-            today_temperature += " ";
+            today_temperature += "/";
             temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
             today_temperature += String.valueOf(Math.round(temp))+"°";
         }

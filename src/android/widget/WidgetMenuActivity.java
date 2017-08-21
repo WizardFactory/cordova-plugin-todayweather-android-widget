@@ -1,7 +1,6 @@
 package net.wizardfactory.todayweather.widget;
 
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ public class WidgetMenuActivity extends CordovaActivity {
     private Context mContxt = null;
     private static String TAG = "WidgetMenu";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-    int mLayoutId = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +34,6 @@ public class WidgetMenuActivity extends CordovaActivity {
         if (extras != null) {
             mAppWidgetId = extras.getInt(
                     AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-            mLayoutId = extras.getInt("LAYOUT_ID", -1);
         }
 
         //if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -56,6 +53,17 @@ public class WidgetMenuActivity extends CordovaActivity {
         LinearLayout mainLayout = (LinearLayout)findViewById(R.id.menu_layout);
         mainLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
+                finish();
+            }
+        });
+
+        // setting widget button
+        Button settingsBtn = (Button)findViewById(R.id.setting_button);
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                Intent intent = new Intent(mContxt, SettingsActivity.class);
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                mContxt.startActivity(intent);
                 finish();
             }
         });
@@ -80,19 +88,13 @@ public class WidgetMenuActivity extends CordovaActivity {
 
     private void updateWidget() {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContxt);
-        Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(mLayoutId);
-        ComponentName thisWidget = new ComponentName(mContxt, widgetProvider);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
 
-        //int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
-        //Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(layoutId);
-        //ComponentName thisWidget = new ComponentName(mContxt, widgetProvider);
-        //int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+        int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
+        Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(layoutId);
 
         Intent intent = new Intent(this, widgetProvider);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        //intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {mAppWidgetId});
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {mAppWidgetId});
         intent.putExtra("ManualUpdate", true);
         sendBroadcast(intent);
     }

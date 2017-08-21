@@ -2,7 +2,9 @@ package net.wizardfactory.todayweather.widget.Provider;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -25,6 +27,15 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
         TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
 
+        if (Build.MANUFACTURER.equals("samsung")) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 14);
+                views.setTextViewTextSize(R.id.cmp_yesterday_temperature, TypedValue.COMPLEX_UNIT_DIP, 14);
+                views.setTextViewTextSize(R.id.today_text, TypedValue.COMPLEX_UNIT_DIP, 14);
+                views.setTextViewTextSize(R.id.yesterday_text, TypedValue.COMPLEX_UNIT_DIP, 14);
+            }
+        }
+
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
         views.setTextColor(R.id.errMsg, fontColor);
         views.setTextColor(R.id.location, fontColor);
@@ -38,6 +49,8 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
         views.setTextColor(R.id.yesterday_high_temperature, Color.BLACK);
         views.setTextColor(R.id.yesterday_separator_temperature, Color.BLACK);
         views.setTextColor(R.id.yesterday_low_temperature, Color.BLACK);
+
+        TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
@@ -58,7 +71,7 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
             String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
             tempMax = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getMaxTemperature());
             tempMin = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getMinTemperature());
-            views.setTextViewText(R.id.yesterday_temperature, tempStr);
+            views.setTextViewText(R.id.yesterday_temperature, tempStr+"°");
             views.setTextViewText(R.id.today_high_temperature, String.valueOf(Math.round(tempMax)));
             views.setTextViewText(R.id.today_low_temperature, String.valueOf(Math.round(tempMin)));
 //                views.setTextViewText(R.id.cmp_yesterday_temperature, currentData.getSummary());

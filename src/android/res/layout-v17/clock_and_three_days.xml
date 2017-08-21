@@ -7,31 +7,55 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="12dp"
-        android:id="@+id/location"
-        android:includeFontPadding="false"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/loading"
         android:textSize="12dp"
         android:includeFontPadding="false"
         android:id="@+id/pubdate"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="4dp" />
+        />
+
+    <ImageView
+        android:id="@+id/ic_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="#ffffffff"
+        android:scaleType="fitCenter"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/pubdate"
+        android:layout_alignBottom="@id/pubdate"
+        android:src="@drawable/ic_refresh_black_24dp"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@id/pubdate"
+        android:tint="#ffffffff"
+        android:scaleType="fitCenter"
+        android:id="@+id/ic_settings"
+        android:src="@drawable/ic_settings_black_24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/location"
+        android:text=""
+        android:textSize="12dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:layout_toLeftOf="@id/ic_refresh"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/ic_settings" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/weather_layout"
+        android:orientation="horizontal"
         android:layout_below="@+id/location"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="4dp"
@@ -50,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/date"
                 android:includeFontPadding="false"
-                android:textSize="14dp"
+                android:textSize="16dp"
                 android:format24Hour="MM.dd. E"
                 android:format12Hour="MM.dd. E" />
 
@@ -90,7 +114,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:text=""
                 android:includeFontPadding="false"
                 android:id="@+id/label_yesterday"
@@ -124,7 +148,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:text=""
                 android:includeFontPadding="false"
                 android:id="@+id/label_today"
@@ -158,7 +182,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:includeFontPadding="false"
                 android:text=""
                 android:id="@+id/label_tomorrow"

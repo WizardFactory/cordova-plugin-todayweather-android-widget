@@ -1,7 +1,6 @@
 package net.wizardfactory.todayweather.widget;
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
@@ -263,6 +262,15 @@ public class WidgetUpdateService extends Service {
         }
 
         Log.i("Service", "start update startId="+startId);
+
+        //notice start updating
+        {
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            int layoutId = appWidgetManager.getAppWidgetInfo(widgetId).initialLayout;
+            RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
+            views.setTextViewText(R.id.pubdate, "Loading");
+            appWidgetManager.updateAppWidget(widgetId, views);
+        }
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
         transWeather.geoInfo = geoInfo;
@@ -556,11 +564,16 @@ public class WidgetUpdateService extends Service {
         Log.i("WidgetUpdateService", "update widget="+widgetId);
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
+        RemoteViews views;
         if (transWeather.geoInfo.getCountry() == null || transWeather.geoInfo.getCountry().equals("KR")) {
-            updateKrWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
+            views = updateKrWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
         }
         else {
-            updateWorldWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
+            views = updateWorldWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
+        }
+
+        if (views != null) {
+            mAppWidgetManager.updateAppWidget(widgetId, views);
         }
 
         if(startId >= 0) {
@@ -569,11 +582,11 @@ public class WidgetUpdateService extends Service {
         }
     }
 
-    private void updateWorldWeatherWidget(int widgetId, String jsonStr, String locationName) {
+    private RemoteViews updateWorldWeatherWidget(int widgetId, String jsonStr, String locationName) {
         if (jsonStr == null) {
             Log.e("WidgetUpdateService", "jsonData is NULL");
             Toast.makeText(getApplicationContext(), "Fail to get world weather data", Toast.LENGTH_LONG).show();
-            return;
+            return null;
         }
 
         /**
@@ -585,7 +598,7 @@ public class WidgetUpdateService extends Service {
             mLayoutId = mAppWidgetManager.getAppWidgetInfo(widgetId).initialLayout;
         } catch (Exception e) {
             Log.e("Service", "Exception: " + e.getMessage());
-            return;
+            return null;
         }
 
         Context context = getApplicationContext();
@@ -659,14 +672,7 @@ public class WidgetUpdateService extends Service {
             Log.i("UpdateWorldWeather", "set 4x1 clock and three days id=" + widgetId);
         }
 
-        // Create an Intent to launch menu
-        Intent intent = new Intent(context, WidgetMenuActivity.class);
-        intent.putExtra("LAYOUT_ID", mLayoutId);
-        // intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, widgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setOnClickPendingIntent(R.id.bg_layout, pendingIntent);
-
-        mAppWidgetManager.updateAppWidget(widgetId, views);
+        return views;
     }
 
     /**
@@ -674,10 +680,10 @@ public class WidgetUpdateService extends Service {
      * @param widgetId
      * @param jsonStr
      */
-    private void updateKrWeatherWidget(int widgetId, String jsonStr, String locationName) {
+    private RemoteViews updateKrWeatherWidget(int widgetId, String jsonStr, String locationName) {
         if (jsonStr == null) {
             Log.e("WidgetUpdateService", "jsonData is NULL");
-            return;
+            return null;
         }
         //Log.i("Service", "jsonStr: " + jsonStr);
 
@@ -685,7 +691,7 @@ public class WidgetUpdateService extends Service {
         WeatherElement weatherElement = WeatherElement.parsingWeatherElementString2Json(jsonStr);
         if (weatherElement == null) {
             Log.e("WidgetUpdateService", "weatherElement is NULL");
-            return;
+            return null;
         }
 
         /**
@@ -697,7 +703,7 @@ public class WidgetUpdateService extends Service {
             mLayoutId = mAppWidgetManager.getAppWidgetInfo(widgetId).initialLayout;
         } catch (Exception e) {
             Log.e("Service", "Exception: " + e.getMessage());
-            return;
+            return null;
         }
 
         WidgetData wData = null;
@@ -711,12 +717,12 @@ public class WidgetUpdateService extends Service {
         }
         catch (Exception e) {
             Log.e("Service", "Exception: " + e.getMessage());
-            return;
+            return null;
         }
 
         if (wData == null) {
             Log.e("Service", "weather data is null");
-            return;
+            return null;
         }
 
         Context context = getApplicationContext();
@@ -765,14 +771,7 @@ public class WidgetUpdateService extends Service {
             Log.i("UpdateWidgetService", "set 4x1 clock and three days id=" + widgetId);
         }
 
-        // Create an Intent to launch menu
-        Intent intent = new Intent(context, WidgetMenuActivity.class);
-        intent.putExtra("LAYOUT_ID", mLayoutId);
-//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, widgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setOnClickPendingIntent(R.id.bg_layout, pendingIntent);
-
-        mAppWidgetManager.updateAppWidget(widgetId, views);
+        return views;
     }
 
     static public Class<?> getWidgetProvider(int layoutId) {
