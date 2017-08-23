@@ -44,12 +44,6 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Display the fragment as the main content.
-        settingsFragment = new SettingsFragment();
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settingsFragment)
-                .commit();
-
         // Find the widget id from the intent.
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -64,6 +58,13 @@ public class SettingsActivity extends PreferenceActivity {
             finish();
             return;
         }
+
+        // Display the fragment as the main content.
+        settingsFragment = new SettingsFragment();
+        settingsFragment.setAppWidgetId(mAppWidgetId);
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, settingsFragment)
+                .commit();
 
         // Set the result to CANCELED.  This will cause the widget host to cancel
         // out of the widget placement if the user presses the back button.
@@ -238,6 +239,7 @@ public class SettingsActivity extends PreferenceActivity {
             minInterval = appPrefs.getInt(APP_UPDATE_INTERVAL_KEY, 0);
             saveUpdateIntervalPref(context, appWidgetId, minInterval);
         }
+        //이전 버그로 1이 들어간 경우가 있어서 복원코드임
         if (minInterval == 1) {
             saveUpdateIntervalPref(context, appWidgetId, 30);
         }
