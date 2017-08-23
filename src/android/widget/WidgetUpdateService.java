@@ -480,6 +480,8 @@ public class WidgetUpdateService extends Service {
                 catch (Exception e) {
                     Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
                     Log.e("Service", e.toString());
+
+                    mHandler.sendMessageDelayed(Message.obtain(null, MSG_GET_GEOINFO, widgetId, startId), 60000);
                 }
             }
         }).execute();
