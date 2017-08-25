@@ -63,6 +63,7 @@ public class WidgetMenuActivity extends CordovaActivity {
             public void onClick(View arg0) {
                 Intent intent = new Intent(mContxt, SettingsActivity.class);
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContxt.startActivity(intent);
                 finish();
             }
