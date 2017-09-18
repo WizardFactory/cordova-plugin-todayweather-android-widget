@@ -209,6 +209,10 @@ public class WeatherData {
         this.minTemperature = minTemperature;
     }
 
+    public String getSkyImageName() {
+        return this.getSkyImageName(false);
+    }
+
     /**
      *
      * @param {Number} sky 맑음(1) 구름조금(2) 구름많음(3) 흐림(4) , invalid : -1
@@ -216,10 +220,14 @@ public class WeatherData {
      * @param {Number} lgt 없음(0) 있음(1), invalid : -1
      * @param {Boolean} isNight
      */
-    public String getSkyImageName() {
+    public String getSkyImageName(boolean isDaily) {
         Calendar c = Calendar.getInstance();
+        c.setTime(date);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         boolean isNight = (hour >= 7 && hour < 18) ? false : true;
+        if (isDaily == true) {
+            isNight = false;
+        }
 
         String strSkyImage = "";
         if (sky == 4) {
@@ -268,6 +276,7 @@ public class WeatherData {
         int retSkyIconRscId = -1;
 
         Calendar c = Calendar.getInstance();
+        c.setTime(date);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         boolean isNight = (hour > 7 && hour < 18) ? false : true;
 

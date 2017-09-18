@@ -8,15 +8,21 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import net.wizardfactory.todayweather.MainActivity;
 import net.wizardfactory.todayweather.R;
+import net.wizardfactory.todayweather.widget.Data.WidgetData;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 import net.wizardfactory.todayweather.widget.WidgetMenuActivity;
 import net.wizardfactory.todayweather.widget.WidgetUpdateService;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by aleckim on 2016. 9. 11..
@@ -38,6 +44,40 @@ public class TwWidgetProvider extends AppWidgetProvider {
         int color = Color.argb(255*(100-fransparency)/100, Color.red(bgColor), Color.green(bgColor), Color.blue(bgColor));
 
         views.setInt(R.id.bg_layout, "setBackgroundColor", color);
+    }
+
+    static public void setWidgetInfoStyle(Context context, int appWidgetId, RemoteViews views) {
+        if (Build.MANUFACTURER.equals("samsung")) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
+                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
+            }
+        }
+
+        int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
+        views.setTextColor(R.id.location, fontColor);
+        views.setTextColor(R.id.pubdate, fontColor);
+
+        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
+        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
+    }
+
+    static public void setWidgetInfoData(Context context, RemoteViews views, WidgetData wData) {
+        if (wData == null) {
+            Log.e(TAG, "weather data is NULL");
+            return;
+        }
+
+        if (wData.getLoc() != null) {
+            // setting town
+            views.setTextViewText(R.id.location, wData.getLoc());
+        }
+
+        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
+                transFormat.format(Calendar.getInstance().getTime()));
+
+        return;
     }
 
     /**

@@ -73,7 +73,7 @@
                 android:text=""
                 android:textSize="12dp"
                 android:includeFontPadding="false"
-                android:id="@+id/label_yesterday"
+                android:id="@+id/label_now"
                 android:layout_gravity="center_horizontal" />
 
             <TextView
@@ -83,13 +83,13 @@
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
-                android:id="@+id/yesterday_temperature"
+                android:id="@+id/now_temperature"
                 android:layout_gravity="center_horizontal" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/yesterday_sky"
+                android:id="@+id/now_sky"
                 android:src="@drawable/transparent"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center_horizontal" />
@@ -108,7 +108,7 @@
                 android:text=""
                 android:textSize="12dp"
                 android:includeFontPadding="false"
-                android:id="@+id/label_today"
+                android:id="@+id/label_first"
                 android:layout_gravity="center_horizontal" />
 
             <TextView
@@ -118,13 +118,13 @@
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
-                android:id="@+id/today_temperature"
+                android:id="@+id/first_temperature"
                 android:layout_gravity="center_horizontal" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/today_sky"
+                android:id="@+id/first_sky"
                 android:src="@drawable/transparent"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center_horizontal" />
@@ -143,7 +143,7 @@
                 android:text=""
                 android:textSize="12dp"
                 android:includeFontPadding="false"
-                android:id="@+id/label_tomorrow"
+                android:id="@+id/label_second"
                 android:layout_gravity="center_horizontal" />
 
             <TextView
@@ -153,13 +153,13 @@
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
-                android:id="@+id/tomorrow_temperature"
+                android:id="@+id/second_temperature"
                 android:layout_gravity="center_horizontal" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/tomorrow_sky"
+                android:id="@+id/second_sky"
                 android:src="@drawable/transparent"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center_horizontal" />
@@ -179,7 +179,7 @@
                 android:text=""
                 android:textSize="12dp"
                 android:includeFontPadding="false"
-                android:id="@+id/label_twodays"
+                android:id="@+id/label_third"
                 android:layout_gravity="center_horizontal" />
 
             <TextView
@@ -189,13 +189,13 @@
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
-                android:id="@+id/twodays_temperature"
+                android:id="@+id/third_temperature"
                 android:layout_gravity="center_horizontal" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/twodays_sky"
+                android:id="@+id/third_sky"
                 android:src="@drawable/transparent"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center_horizontal" />
@@ -215,7 +215,7 @@
                 android:text=""
                 android:textSize="12dp"
                 android:includeFontPadding="false"
-                android:id="@+id/label_threedays"
+                android:id="@+id/label_fourth"
                 android:layout_gravity="center_horizontal" />
 
             <TextView
@@ -225,13 +225,13 @@
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
-                android:id="@+id/threedays_temperature"
+                android:id="@+id/fourth_temperature"
                 android:layout_gravity="center_horizontal" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/threedays_sky"
+                android:id="@+id/fourth_sky"
                 android:src="@drawable/transparent"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center_horizontal" />

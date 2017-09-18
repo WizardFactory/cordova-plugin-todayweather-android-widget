@@ -11,11 +11,21 @@ public class WidgetData {
     WeatherData currentWeather = null;
     WeatherData before24hWeather = null; //the weather is before 24hours
     WeatherData daysWeather[] = null;
+    WeatherData hourlyWeather[] = null;
     String Loc = null;
     Units units = null;
 
     public WidgetData() {
         daysWeather = new WeatherData[MAX_WEAHTER_INDEX+1];
+        hourlyWeather = new WeatherData[MAX_WEAHTER_INDEX+1];
+    }
+
+    public void setHourlyWeather(int index, WeatherData hourlyWeather) {
+        this.hourlyWeather[index] = hourlyWeather;
+    }
+
+    public WeatherData getHourlyWeather(int index) {
+        return hourlyWeather[index];
     }
 
     public void setDayWeather(int index, WeatherData daysWeather) {

@@ -34,4 +34,6 @@
  <string name="font_color">Font Color</string>
  <string name="add_locations">Add locations in the app</string>
  <string name="settings">Settings</string>
+ <string name="hour">h</string>
+ <string name="now">now</string>
 </resources>
