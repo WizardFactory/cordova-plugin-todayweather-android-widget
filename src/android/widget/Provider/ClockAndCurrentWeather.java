@@ -13,8 +13,6 @@ import net.wizardfactory.todayweather.widget.Data.WidgetData;
 import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
@@ -27,13 +25,9 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
         mLayoutId = R.layout.clock_and_current_weather;
     }
 
-    static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
-        TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
-
+    static public void setWidgetClockCurrentStyle(Context context, int appWidgetId, RemoteViews views) {
         if (Build.MANUFACTURER.equals("samsung")) {
             if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
                 views.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_DIP, 18);
                 views.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_DIP, 46);
                 views.setTextViewTextSize(R.id.am_pm, TypedValue.COMPLEX_UNIT_DIP, 14);
@@ -43,8 +37,6 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
         }
 
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
-        views.setTextColor(R.id.location, fontColor);
-        views.setTextColor(R.id.pubdate, fontColor);
         views.setTextColor(R.id.tmn_tmx_pm_pp, fontColor);
         views.setTextColor(R.id.current_temperature, fontColor);
         if (Build.VERSION.SDK_INT >= 17) {
@@ -52,23 +44,22 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             views.setTextColor(R.id.time, fontColor);
             views.setTextColor(R.id.am_pm, fontColor);
         }
-        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
-        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
+    }
+
+    static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
+        TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
+        TwWidgetProvider.setWidgetInfoStyle(context, appWidgetId, views);
+        setWidgetClockCurrentStyle(context, appWidgetId, views);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetClockCurrentData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
-        }
-
-        if (wData.getLoc() != null) {
-            // setting town
-            views.setTextViewText(R.id.location, wData.getLoc());
         }
 
         WeatherData currentData = wData.getCurrentWeather();
@@ -76,10 +67,6 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             Log.e(TAG, "currentElement is NULL");
             return;
         }
-
-        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
-                transFormat.format(Calendar.getInstance().getTime()));
 
         if (Build.VERSION.SDK_INT >= 17) {
             if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
@@ -103,6 +90,11 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
         }
         views.setImageViewResource(R.id.current_sky, skyResourceId);
         views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, wData, localUnits));
+    }
+
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+        TwWidgetProvider.setWidgetInfoData(context, views, wData);
+        setWidgetClockCurrentData(context, views, wData, localUnits);
     }
 
     static protected String makeTmnTmxPmPpStr(Context context, WidgetData wData, Units localUnits) {

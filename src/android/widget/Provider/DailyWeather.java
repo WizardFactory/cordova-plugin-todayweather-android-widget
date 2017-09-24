@@ -14,62 +14,54 @@ import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class DailyWeather extends TwWidgetProvider {
 
+    static public int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow,
+            R.id.label_twodays, R.id.label_threedays};
+    static public int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature,
+            R.id.tomorrow_temperature, R.id.twodays_temperature, R.id.threedays_temperature};
+    static public int[] skyIds = {R.id.yesterday_sky, R.id.today_sky,
+            R.id.tomorrow_sky, R.id.twodays_sky, R.id.threedays_sky};
+
     public DailyWeather() {
         TAG = "W4x1 DailyWeather";
         mLayoutId = R.layout.daily_weather;
     }
 
-    static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
-        TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
-
-        int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow,
-                R.id.label_twodays, R.id.label_threedays};
-        int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature,
-                R.id.tomorrow_temperature, R.id.twodays_temperature, R.id.threedays_temperature};
-
+    static public void setWidgetDailyStyle(Context context, int appWidgetId, RemoteViews views) {
         if (Build.MANUFACTURER.equals("samsung")) {
             if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
-
                 for (int i = 0; i < 5; i++) {
                     views.setTextViewTextSize(labelIds[i], TypedValue.COMPLEX_UNIT_DIP, 16);
                     views.setTextViewTextSize(tempIds[i], TypedValue.COMPLEX_UNIT_DIP, 18);
                 }
             }
         }
-
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
-        views.setTextColor(R.id.location, fontColor);
-        views.setTextColor(R.id.pubdate, fontColor);
         for (int i = 0; i < 5; i++) {
             views.setTextColor(labelIds[i], fontColor);
             views.setTextColor(tempIds[i], fontColor);
         }
-        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
-        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
+    }
+
+    static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
+        TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
+        TwWidgetProvider.setWidgetInfoStyle(context, appWidgetId, views);
+        setWidgetDailyStyle(context, appWidgetId, views);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetDailyData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
-        }
-
-        if (wData.getLoc() != null) {
-            // setting town
-            views.setTextViewText(R.id.location, wData.getLoc());
         }
 
         WeatherData currentData = wData.getCurrentWeather();
@@ -78,23 +70,14 @@ public class DailyWeather extends TwWidgetProvider {
             return;
         }
 
-        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
-                transFormat.format(Calendar.getInstance().getTime()));
-
         views.setTextViewText(R.id.label_yesterday, context.getString(R.string.yesterday));
         views.setTextViewText(R.id.label_today, context.getString(R.string.today));
         views.setTextViewText(R.id.label_tomorrow, context.getString(R.string.tomorrow));
 
-        int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow,
-                R.id.label_twodays, R.id.label_threedays};
-        int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature,
-                R.id.tomorrow_temperature, R.id.twodays_temperature, R.id.threedays_temperature};
-        int[] skyIds = {R.id.yesterday_sky, R.id.today_sky,
-                R.id.tomorrow_sky, R.id.twodays_sky, R.id.threedays_sky};
-
         double temp;
         int skyResourceId;
+        SimpleDateFormat transFormat;
+
         for (int i=0; i<5; i++) {
             WeatherData dayData = wData.getDayWeather(i);
             double minTemperature = dayData.getMinTemperature();
@@ -112,18 +95,22 @@ public class DailyWeather extends TwWidgetProvider {
             views.setTextViewText(tempIds[i], day_temperature);
 
             if (dayData.getSky() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                skyResourceId = context.getResources().getIdentifier(dayData.getSkyImageName(), "drawable", context.getPackageName());
+                skyResourceId = context.getResources().getIdentifier(dayData.getSkyImageName(true), "drawable", context.getPackageName());
                 if (skyResourceId == -1) {
                     skyResourceId = R.drawable.sun;
                 }
                 views.setImageViewResource(skyIds[i], skyResourceId);
             }
-
             if (i > 2 && dayData.getDate() != null) {
                 transFormat = new SimpleDateFormat("dd");
                 views.setTextViewText(labelIds[i], transFormat.format(dayData.getDate()));
             }
         }
+    }
+
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+        TwWidgetProvider.setWidgetInfoData(context, views, wData);
+        setWidgetDailyData(context, views, wData, localUnits);
     }
 }
 

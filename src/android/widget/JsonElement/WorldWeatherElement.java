@@ -11,7 +11,9 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by aleckim on 2016. 12. 26..
@@ -110,7 +112,9 @@ public class WorldWeatherElement {
                     currentWeather.setSky(0);
                 }
                 currentWeather.setLgt(0); //not support
+                //get pubdate from date of current(thisTime[1])
                 currentWeather.setPubDate(_convertString2Date(current.getString("date")));
+                currentWeather.setDate(_convertString2Date(current.getString("date")));
                 if (current.has("precip")) {
                     currentWeather.setRn1(current.getDouble("precip"));
                 }
@@ -146,6 +150,7 @@ public class WorldWeatherElement {
                 JSONObject before24h = thisTime.getJSONObject(0);
                 before24hWeather.setTemperature(before24h.getDouble("temp_c"));
                 before24hWeather.setPubDate(_convertString2Date(before24h.getString("date")));
+                before24hWeather.setDate(_convertString2Date(before24h.getString("date")));
                 JSONObject yesterdayInfo = _getTheDay(reader.getJSONArray("daily"), before24hWeather.getPubDate());
                 if (yesterdayInfo != null) {
                     before24hWeather.setMaxTemperature(yesterdayInfo.getDouble("tempMax_c"));
@@ -163,6 +168,67 @@ public class WorldWeatherElement {
             e.printStackTrace();
         }
         return before24hWeather;
+    }
+
+    static public List<WeatherData> getHourlyWeatherFromCurrent(String jsonStr) {
+        List<WeatherData> hourlyWeather = new ArrayList<WeatherData>();
+        try {
+            JSONObject reader = new JSONObject(jsonStr);
+            if (reader == null) {
+                Log.e("WorldWeatherElement", "Json string is NULL");
+                return hourlyWeather;
+            }
+
+            JSONArray thisTime = reader.getJSONArray("thisTime");
+            JSONObject current = thisTime.getJSONObject(1);
+            Date theDay = _convertString2Date(current.getString("date"));
+
+            JSONArray hourly = reader.getJSONArray("hourly");
+
+            for (int i=0; i<hourly.length() && hourlyWeather.size() <= 5; i++) {
+                JSONObject hourInfo;
+                Date dayDate;
+                hourInfo = hourly.getJSONObject(i);
+                SimpleDateFormat transFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+                dayDate = transFormat.parse(hourInfo.getString("date"));
+                if (theDay.getTime() >= dayDate.getTime()) {
+                    continue;
+                }
+
+                WeatherData hourlyData = new WeatherData();
+                hourlyData.setDate(dayDate);
+                hourlyData.setTemperature(hourInfo.getDouble("temp_c"));
+                if (hourInfo.has("precType")) {
+                    hourlyData.setPty(_convertPrecType2Pty(hourInfo.getInt("precType")));
+                }
+                else {
+                    hourlyData.setPty(0);
+                }
+                if (hourInfo.has("cloud")) {
+                    hourlyData.setSky(_convertCloud2Sky(hourInfo.getInt("cloud")));
+                }
+                else {
+                    hourlyData.setSky(0);
+                }
+                hourlyData.setLgt(0); //not support
+                if (hourInfo.has("precip")) {
+                    hourlyData.setRn1(hourInfo.getDouble("precip"));
+                }
+                else {
+                    hourlyData.setRn1(0);
+                }
+                hourlyWeather.add(hourlyData);
+            }
+
+        } catch (JSONException e) {
+            Log.e("WorldWeatherElement", "JSONException: " + e.getMessage());
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.e("WorldWeatherElement", "JSONException: " + e.getMessage());
+        }
+
+        return hourlyWeather;
     }
 
     static public WeatherData getDayWeatherFromToday(String jsonStr, int fromToday) {

@@ -28,11 +28,10 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
         TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
+        TwWidgetProvider.setWidgetInfoStyle(context, appWidgetId, views);
 
         if (Build.MANUFACTURER.equals("samsung")) {
             if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
                 views.setTextViewTextSize(R.id.today_temperature, TypedValue.COMPLEX_UNIT_DIP, 20);
                 views.setTextViewTextSize(R.id.current_pm, TypedValue.COMPLEX_UNIT_DIP, 20);
                 views.setTextViewTextSize(R.id.current_temperature, TypedValue.COMPLEX_UNIT_DIP, 48);
@@ -40,14 +39,9 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
         }
 
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
-        views.setTextColor(R.id.location, fontColor);
         views.setTextColor(R.id.today_temperature, fontColor);
         views.setTextColor(R.id.current_temperature, fontColor);
-        views.setTextColor(R.id.pubdate, fontColor);
         views.setTextColor(R.id.current_pm, fontColor);
-
-        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
-        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
 
         //TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);

@@ -28,11 +28,10 @@ public class AirQualityIndex extends TwWidgetProvider {
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
         TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
+        TwWidgetProvider.setWidgetInfoStyle(context, appWidgetId, views);
 
         if (Build.MANUFACTURER.equals("samsung")) {
             if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
                 views.setTextViewTextSize(R.id.label_aqi, TypedValue.COMPLEX_UNIT_DIP, 18);
                 views.setTextViewTextSize(R.id.label_pm10, TypedValue.COMPLEX_UNIT_DIP, 18);
                 views.setTextViewTextSize(R.id.label_pm25, TypedValue.COMPLEX_UNIT_DIP, 18);
@@ -43,8 +42,6 @@ public class AirQualityIndex extends TwWidgetProvider {
         }
 
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
-        views.setTextColor(R.id.location, fontColor);
-        views.setTextColor(R.id.pubdate, fontColor);
         views.setTextColor(R.id.errMsg, fontColor);
         views.setTextColor(R.id.label_aqi, fontColor);
         views.setTextColor(R.id.label_pm10, fontColor);
@@ -52,8 +49,6 @@ public class AirQualityIndex extends TwWidgetProvider {
         views.setTextColor(R.id.aqi_str, fontColor);
         views.setTextColor(R.id.pm10_str, fontColor);
         views.setTextColor(R.id.pm25_str, fontColor);
-        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
-        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);

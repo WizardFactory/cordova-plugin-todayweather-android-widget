@@ -13,17 +13,19 @@ import net.wizardfactory.todayweather.widget.Data.WidgetData;
 import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
+import java.util.Calendar;
+
 /**
  * Implementation of App Widget functionality.
  */
-public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
-    static int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow};
-    static int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature, R.id.tomorrow_temperature};
-    static int[] skyIds = {R.id.yesterday_sky, R.id.today_sky, R.id.tomorrow_sky};
+public class W4x1Current3Hourly extends ClockAndCurrentWeather {
+    static int[] labelIds = {R.id.label_first, R.id.label_second, R.id.label_third};
+    static int[] tempIds = {R.id.first_temperature, R.id.second_temperature, R.id.third_temperature};
+    static int[] skyIds = {R.id.first_sky, R.id.second_sky, R.id.third_sky};
 
-    public CurrentWeatherAndThreeDays() {
-        TAG = "W4x1 CurrentWeatherAndThreeDays";
-        mLayoutId = R.layout.current_weather_and_three_days;
+    public W4x1Current3Hourly() {
+        TAG = "W4x1 CurrentHourly";
+        mLayoutId = R.layout.w4x1_current_hourly;
     }
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
@@ -80,29 +82,22 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
 
         views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, wData, localUnits));
 
-        views.setTextViewText(R.id.label_yesterday, context.getString(R.string.yesterday));
-        views.setTextViewText(R.id.label_today, context.getString(R.string.today));
-        views.setTextViewText(R.id.label_tomorrow, context.getString(R.string.tomorrow));
 
         double temp;
-        for (int i=0; i<3; i++) {
-            WeatherData dayData = wData.getDayWeather(i);
-            double minTemperature = dayData.getMinTemperature();
-            double maxTemperature = dayData.getMaxTemperature();
-            String day_temperature = "";
-            if (minTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
-                temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), minTemperature);
-                day_temperature += Math.round(temp)+"°";;
-            }
-            if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
-                day_temperature += "/";
-                temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
-                day_temperature += Math.round(temp)+"°";;
-            }
-            views.setTextViewText(tempIds[i], day_temperature);
+        Calendar calendar = Calendar.getInstance();
 
-            if (dayData.getSky() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                skyResourceId = context.getResources().getIdentifier(dayData.getSkyImageName(true), "drawable", context.getPackageName());
+        for (int i=0; i<3; i++) {
+            WeatherData hourlyData = wData.getHourlyWeather(i);
+
+            calendar.setTime(hourlyData.getDate());
+            String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY))
+                    + context.getString(R.string.hour);
+            views.setTextViewText(labelIds[i], hour);
+            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), hourlyData.getTemperature());
+            views.setTextViewText(tempIds[i], String.valueOf(Math.round(temp))+"°");
+
+            if (hourlyData.getSky() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+                skyResourceId = context.getResources().getIdentifier(hourlyData.getSkyImageName(), "drawable", context.getPackageName());
                 if (skyResourceId == -1) {
                     skyResourceId = R.drawable.sun;
                 }
@@ -110,6 +105,5 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
             }
         }
     }
-
 }
 

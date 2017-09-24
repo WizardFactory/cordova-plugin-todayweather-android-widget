@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bg_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/bg_layout"
     android:padding="@dimen/widget_margin">
 
     <TextView
@@ -51,12 +51,63 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/ic_settings" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/weather_layout"
+        android:layout_below="@id/ic_settings"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16dp"
+            android:id="@+id/tmn_tmx_pm_pp"
+            android:layout_gravity="right"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/current_sky"
+            android:src="@drawable/transparent"
+            android:scaleType="fitEnd"
+            android:layout_below="@id/tmn_tmx_pm_pp"
+            android:layout_toLeftOf="@+id/current_temperature"
+            android:layout_alignBottom="@+id/current_temperature" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text=""
+            android:textSize="32dp"
+            android:id="@+id/current_temperature"
+            android:layout_below="@+id/tmn_tmx_pm_pp"
+            android:layout_alignParentRight="true" />
+
+        <AnalogClock
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/analogClock"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/tmn_tmx_pm_pp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/daily_layout"
         android:orientation="horizontal"
-        android:layout_below="@+id/location"
+        android:layout_below="@+id/weather_layout"
+        android:layout_marginTop="4dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp">
 
@@ -79,7 +130,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -91,7 +141,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/yesterday_sky"
                 android:src="@drawable/transparent"
-                android:scaleType="fitCenter"
+                android:scaleType="fitStart"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
@@ -114,7 +166,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -126,7 +177,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/today_sky"
                 android:src="@drawable/transparent"
-                android:scaleType="fitCenter"
+                android:scaleType="fitStart"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
@@ -149,7 +202,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -161,7 +213,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/tomorrow_sky"
                 android:src="@drawable/transparent"
-                android:scaleType="fitCenter"
+                android:scaleType="fitStart"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
@@ -169,7 +223,6 @@
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/linearLayout3"
             android:id="@+id/linearLayout4"
             android:layout_weight="1">
 
@@ -185,7 +238,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -197,7 +249,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/twodays_sky"
                 android:src="@drawable/transparent"
-                android:scaleType="fitCenter"
+                android:scaleType="fitStart"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
@@ -205,7 +259,6 @@
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/linearLayout4"
             android:id="@+id/linearLayout5"
             android:layout_weight="1">
 
@@ -221,7 +274,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text=""
                 android:textSize="14dp"
                 android:includeFontPadding="false"
@@ -233,7 +285,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/threedays_sky"
                 android:src="@drawable/transparent"
-                android:scaleType="fitCenter"
+                android:scaleType="fitStart"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
     </LinearLayout>

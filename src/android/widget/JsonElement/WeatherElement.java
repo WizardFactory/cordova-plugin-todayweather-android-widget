@@ -265,6 +265,22 @@ public class WeatherElement {
                 retWidgetData.setDayWeather(i, dayData);
             }
 
+            int j=0;
+            for (int i=0;i<weatherShorts.length; i++) {
+                if(current.getDate().getTime() < weatherShorts[i].getDate().getTime()) {
+                    WeatherData hourlyData = new WeatherData();
+                    hourlyData.setSky(weatherShorts[i].getSky());
+                    hourlyData.setPty(weatherShorts[i].getPty());
+                    hourlyData.setLgt(weatherShorts[i].getLgt());
+                    hourlyData.setTemperature(weatherShorts[i].getT3h());
+                    hourlyData.setDate(weatherShorts[i].getDate());
+                    retWidgetData.setHourlyWeather(j, hourlyData);
+                    j++;
+                    if (j>= WidgetData.MAX_WEAHTER_INDEX) {
+                        break;
+                    }
+                }
+            }
             retWidgetData.setUnits(units);
         }
         else {

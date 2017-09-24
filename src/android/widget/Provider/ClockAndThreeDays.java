@@ -13,14 +13,16 @@ import net.wizardfactory.todayweather.widget.Data.WidgetData;
 import net.wizardfactory.todayweather.widget.JsonElement.WeatherElement;
 import net.wizardfactory.todayweather.widget.SettingsActivity;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class ClockAndThreeDays extends TwWidgetProvider {
+
+    static int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow};
+    static int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature, R.id.tomorrow_temperature};
+    static int[] skyIds = {R.id.yesterday_sky, R.id.today_sky, R.id.tomorrow_sky};
 
     public ClockAndThreeDays() {
         TAG = "W3x1 ClockAndThreeDays";
@@ -29,14 +31,10 @@ public class ClockAndThreeDays extends TwWidgetProvider {
 
     static public void setWidgetStyle(Context context, int appWidgetId, RemoteViews views) {
         TwWidgetProvider.setWidgetStyle(context, appWidgetId, views);
-
-        int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow};
-        int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature, R.id.tomorrow_temperature};
+        TwWidgetProvider.setWidgetInfoStyle(context, appWidgetId, views);
 
         if (Build.MANUFACTURER.equals("samsung")) {
             if (Build.VERSION.SDK_INT >= 16) {
-                views.setTextViewTextSize(R.id.location, TypedValue.COMPLEX_UNIT_DIP, 16);
-                views.setTextViewTextSize(R.id.pubdate, TypedValue.COMPLEX_UNIT_DIP, 16);
                 views.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_DIP, 18);
                 views.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_DIP, 46);
                 views.setTextViewTextSize(R.id.am_pm, TypedValue.COMPLEX_UNIT_DIP, 14);
@@ -49,8 +47,6 @@ public class ClockAndThreeDays extends TwWidgetProvider {
         }
 
         int fontColor = SettingsActivity.loadFontColorPref(context, appWidgetId);
-        views.setTextColor(R.id.location, fontColor);
-        views.setTextColor(R.id.pubdate, fontColor);
         for (int i = 0; i < 3; i++) {
             views.setTextColor(labelIds[i], fontColor);
             views.setTextColor(tempIds[i], fontColor);
@@ -60,8 +56,6 @@ public class ClockAndThreeDays extends TwWidgetProvider {
             views.setTextColor(R.id.time, fontColor);
             views.setTextColor(R.id.am_pm, fontColor);
         }
-        views.setInt(R.id.ic_settings, "setColorFilter", fontColor);
-        views.setInt(R.id.ic_refresh, "setColorFilter", fontColor);
 
         TwWidgetProvider.setPendingIntentToRefresh(context, appWidgetId, views);
         TwWidgetProvider.setPendingIntentToSettings(context, appWidgetId, views);
@@ -69,14 +63,10 @@ public class ClockAndThreeDays extends TwWidgetProvider {
     }
 
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+        TwWidgetProvider.setWidgetInfoData(context, views, wData);
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
-        }
-
-        if (wData.getLoc() != null) {
-            // setting town
-            views.setTextViewText(R.id.location, wData.getLoc());
         }
 
         WeatherData currentData = wData.getCurrentWeather();
@@ -84,10 +74,6 @@ public class ClockAndThreeDays extends TwWidgetProvider {
             Log.e(TAG, "currentElement is NULL");
             return;
         }
-
-        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-        views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
-                transFormat.format(Calendar.getInstance().getTime()));
 
         if (Build.VERSION.SDK_INT >= 17) {
             if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
@@ -101,10 +87,6 @@ public class ClockAndThreeDays extends TwWidgetProvider {
                 }
             }
         }
-
-        int[] labelIds = {R.id.label_yesterday, R.id.label_today, R.id.label_tomorrow};
-        int[] tempIds = {R.id.yesterday_temperature, R.id.today_temperature, R.id.tomorrow_temperature};
-        int[] skyIds = {R.id.yesterday_sky, R.id.today_sky, R.id.tomorrow_sky};
 
         int skyResourceId;
 
@@ -130,7 +112,7 @@ public class ClockAndThreeDays extends TwWidgetProvider {
             views.setTextViewText(tempIds[i], day_temperature);
 
             if (dayData.getSky() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                skyResourceId = context.getResources().getIdentifier(dayData.getSkyImageName(), "drawable", context.getPackageName());
+                skyResourceId = context.getResources().getIdentifier(dayData.getSkyImageName(true), "drawable", context.getPackageName());
                 if (skyResourceId == -1) {
                     skyResourceId = R.drawable.sun;
                 }
