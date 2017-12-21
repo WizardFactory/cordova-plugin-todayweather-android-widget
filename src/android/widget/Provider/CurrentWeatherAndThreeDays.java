@@ -69,8 +69,7 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
             return;
         }
 
-        String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-        views.setTextViewText(R.id.current_temperature, tempStr+"°");
+        views.setTextViewText(R.id.current_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
         if (skyResourceId == -1) {
@@ -84,20 +83,17 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
         views.setTextViewText(R.id.label_today, context.getString(R.string.today));
         views.setTextViewText(R.id.label_tomorrow, context.getString(R.string.tomorrow));
 
-        double temp;
         for (int i=0; i<3; i++) {
             WeatherData dayData = wData.getDayWeather(i);
-            double minTemperature = dayData.getMinTemperature();
-            double maxTemperature = dayData.getMaxTemperature();
+            int minTemperature = (int) dayData.getMinTemperature();
+            int maxTemperature = (int) dayData.getMaxTemperature();
             String day_temperature = "";
             if (minTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
-                temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), minTemperature);
-                day_temperature += Math.round(temp)+"°";;
+                day_temperature += String.valueOf(minTemperature)+"°";;
             }
             if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
                 day_temperature += "/";
-                temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
-                day_temperature += Math.round(temp)+"°";;
+                day_temperature += String.valueOf(maxTemperature)+"°";;
             }
             views.setTextViewText(tempIds[i], day_temperature);
 

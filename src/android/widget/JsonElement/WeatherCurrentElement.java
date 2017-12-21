@@ -15,7 +15,7 @@ import java.util.Date;
 public class WeatherCurrentElement {
     private Date date = null;           //stnDateTime이 존재하면 pubdate, date, stnDataTime은 동일
     private String strDate = null;
-    private String strTime = null;
+    private int time = -1;
     private double t1h = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
     private double rn1 = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
     private double sky = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
@@ -181,8 +181,8 @@ public class WeatherCurrentElement {
         return strDate;
     }
 
-    public String getStrTime() {
-        return strTime;
+    public int getTime() {
+        return time;
     }
 
     public String getStrSummary() {
@@ -237,8 +237,8 @@ public class WeatherCurrentElement {
         this.strDate = strDate;
     }
 
-    public void setStrTime(String strTime) {
-        this.strTime = strTime;
+    public void setTime(int time) {
+        this.time = time;
     }
 
     public void setStrSummary(String strSummary) {
@@ -299,7 +299,7 @@ public class WeatherCurrentElement {
             JSONObject reader = new JSONObject(jsonStr);
             if (reader != null) {
                 retCurrentElement.setStrDate(reader.optString("date", null));
-                retCurrentElement.setStrTime(reader.optString("time", null));
+                retCurrentElement.setTime(reader.optInt("time", -1));
                 retCurrentElement.setStrSummary(reader.optString("summary", null));
                 retCurrentElement.setT1h(reader.optDouble("t1h", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
                 retCurrentElement.setRn1(reader.optDouble("rn1", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
@@ -360,7 +360,7 @@ public class WeatherCurrentElement {
                     retCurrentElement.setBefore24ht1h(yesterday.optDouble("t1h", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
                 }
 
-                Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retCurrentElement.getStrDate(), retCurrentElement.getStrTime(), retCurrentElement.getStnDateTime());
+                Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retCurrentElement.getStrDate(), retCurrentElement.getTime(), retCurrentElement.getStnDateTime());
                 retCurrentElement.setDate(makeDate);
             }
             else {

@@ -58,7 +58,7 @@ public class DailyWeather extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetDailyData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetDailyData(Context context, RemoteViews views, WidgetData wData) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -74,23 +74,20 @@ public class DailyWeather extends TwWidgetProvider {
         views.setTextViewText(R.id.label_today, context.getString(R.string.today));
         views.setTextViewText(R.id.label_tomorrow, context.getString(R.string.tomorrow));
 
-        double temp;
         int skyResourceId;
         SimpleDateFormat transFormat;
 
         for (int i=0; i<5; i++) {
             WeatherData dayData = wData.getDayWeather(i);
-            double minTemperature = dayData.getMinTemperature();
-            double maxTemperature = dayData.getMaxTemperature();
+            int minTemperature = (int) dayData.getMinTemperature();
+            int maxTemperature = (int) dayData.getMaxTemperature();
             String day_temperature = "";
             if (minTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
-                temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), minTemperature);
-                day_temperature += Math.round(temp)+"°";;
+                day_temperature += String.valueOf(minTemperature)+"°";;
             }
             if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL) {
                 day_temperature += "/";
-                temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
-                day_temperature += Math.round(temp)+"°";;
+                day_temperature += String.valueOf(maxTemperature)+"°";;
             }
             views.setTextViewText(tempIds[i], day_temperature);
 
@@ -108,9 +105,9 @@ public class DailyWeather extends TwWidgetProvider {
         }
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData) {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
-        setWidgetDailyData(context, views, wData, localUnits);
+        setWidgetDailyData(context, views, wData);
     }
 }
 

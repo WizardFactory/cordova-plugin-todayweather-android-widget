@@ -72,14 +72,16 @@ public class AirQualityIndex extends TwWidgetProvider {
             return;
         }
 
-        if (currentData.getAqiPubDate() != null) {
-            SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-            views.setTextViewText(R.id.pubdate, transFormat.format(Calendar.getInstance().getTime()));
-            views.setViewVisibility(R.id.weather_layout, View.VISIBLE);
-            views.setViewVisibility(R.id.errMsg, View.INVISIBLE);
-        }
-        else
-        {
+        SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        views.setTextViewText(R.id.pubdate, transFormat.format(Calendar.getInstance().getTime()));
+
+        int aqiGrade = currentData.getAqiGrade();
+        int pm10Grade = currentData.getPm10Grade();
+        int pm25Grade = currentData.getPm25Grade();
+
+        if ((aqiGrade == WeatherElement.DEFAULT_WEATHER_INT_VAL || aqiGrade == 0)
+                && (pm10Grade == WeatherElement.DEFAULT_WEATHER_INT_VAL || pm10Grade == 0)
+                && (pm25Grade == WeatherElement.DEFAULT_WEATHER_INT_VAL || pm25Grade == 0)) {
             Log.i(TAG, "Fail to get aqi pub date");
             views.setTextViewText(R.id.errMsg, context.getString(R.string.this_location_is_not_supported));
             views.setViewVisibility(R.id.errMsg, View.VISIBLE);
@@ -87,27 +89,23 @@ public class AirQualityIndex extends TwWidgetProvider {
             return;
         }
 
-        int aqiGrade = currentData.getAqiGrade();
-        int pm10Grade = currentData.getPm10Grade();
-        int pm25Grade = currentData.getPm25Grade();
-        if (aqiGrade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-            views.setImageViewResource(R.id.current_aqi_emoji, getDrawableFaceEmoji(aqiGrade));
-            views.setImageViewResource(R.id.current_pm10_emoji, getDrawableFaceEmoji(pm10Grade));
-            views.setImageViewResource(R.id.current_pm25_emoji, getDrawableFaceEmoji(pm25Grade));
-        }
+        views.setViewVisibility(R.id.weather_layout, View.VISIBLE);
+        views.setViewVisibility(R.id.errMsg, View.INVISIBLE);
 
-        views.setTextViewText(R.id.label_aqi, context.getString(R.string.aqi));
-        views.setTextViewText(R.id.label_pm10, context.getString(R.string.pm10));
-        views.setTextViewText(R.id.label_pm25, context.getString(R.string.pm25));
-
-        if (aqiGrade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+        if (aqiGrade != WeatherElement.DEFAULT_WEATHER_INT_VAL && aqiGrade != 0) {
+            views.setTextViewText(R.id.label_aqi, context.getString(R.string.aqi));
             views.setTextViewText(R.id.aqi_str, String.valueOf(currentData.getAqiValue()));
+            views.setImageViewResource(R.id.current_aqi_emoji, getDrawableFaceEmoji(aqiGrade));
         }
-        if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+        if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm10Grade != 0) {
+            views.setTextViewText(R.id.label_pm10, context.getString(R.string.pm10));
             views.setTextViewText(R.id.pm10_str, String.valueOf(currentData.getPm10Value()));
+            views.setImageViewResource(R.id.current_pm10_emoji, getDrawableFaceEmoji(pm10Grade));
         }
-        if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+        if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade != 0) {
+            views.setTextViewText(R.id.label_pm25, context.getString(R.string.pm25));
             views.setTextViewText(R.id.pm25_str, String.valueOf(currentData.getPm25Value()));
+            views.setImageViewResource(R.id.current_pm25_emoji, getDrawableFaceEmoji(pm25Grade));
         }
     }
 

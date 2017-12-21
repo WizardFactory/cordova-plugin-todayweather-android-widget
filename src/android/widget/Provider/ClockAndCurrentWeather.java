@@ -81,8 +81,7 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             }
         }
 
-        String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-        views.setTextViewText(R.id.current_temperature, tempStr+"°");
+        views.setTextViewText(R.id.current_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
         if (skyResourceId == -1) {
@@ -100,25 +99,22 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
     static protected String makeTmnTmxPmPpStr(Context context, WidgetData wData, Units localUnits) {
         WeatherData data = wData.getCurrentWeather();
 
-        double minTemperature = data.getMinTemperature();
-        double maxTemperature = data.getMaxTemperature();
+        int minTemperature = (int)data.getMinTemperature();
+        int maxTemperature = (int)data.getMaxTemperature();
         double temp;
         String today_tmn_tmx_pm_pp = "";
         if (minTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL)  {
-            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), minTemperature);
-            today_tmn_tmx_pm_pp += String.valueOf(Math.round(temp))+"°";
+            today_tmn_tmx_pm_pp += String.valueOf(minTemperature)+"°";
         }
         if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL)  {
             today_tmn_tmx_pm_pp += "/";
-            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
-            today_tmn_tmx_pm_pp += String.valueOf(Math.round(temp))+"°";
+            today_tmn_tmx_pm_pp += String.valueOf(maxTemperature)+"°";
         }
 
         double rn1 = data.getRn1();
         if (rn1 != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL && rn1 != 0 ) {
             today_tmn_tmx_pm_pp += " ";
-            String precipStr = localUnits.convertUnitsStr(wData.getUnits().getPrecipitationUnit(), rn1);
-            today_tmn_tmx_pm_pp += precipStr+localUnits.getPrecipitationUnit();
+            today_tmn_tmx_pm_pp += rn1+localUnits.getPrecipitationUnit();
         }
         else {
             int pm10Grade = data.getPm10Grade();
