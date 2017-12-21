@@ -216,16 +216,16 @@ public class WeatherDailyDataElement {
                         if (wsd != Double.NaN) {
                             retDailyDataElements[i].setWsd(wsd);
                         }
-                        double taMax = reader.optDouble("taMax");
+                        double taMax = reader.optDouble("tmx");
                         if (taMax != Double.NaN) {
                             retDailyDataElements[i].setTaMax(taMax);
                         }
-                        double taMin = reader.optDouble("taMin");
+                        double taMin = reader.optDouble("tmn");
                         if (taMin != Double.NaN) {
                             retDailyDataElements[i].setTaMin(taMin);
                         }
 
-                        Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retDailyDataElements[i].getStrDate(), null, null);
+                        Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retDailyDataElements[i].getStrDate(), -1, null);
                         retDailyDataElements[i].setDate(makeDate);
                     }
                     else {

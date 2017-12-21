@@ -67,9 +67,7 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
 
         SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
         views.setTextViewText(R.id.pubdate, transFormat.format(Calendar.getInstance().getTime()));
-
-        String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-        views.setTextViewText(R.id.current_temperature, tempStr+"°");
+        views.setTextViewText(R.id.current_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
         if (skyResourceId == -1) {
@@ -79,8 +77,7 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
 
         double rn1 = currentData.getRn1();
         if (rn1 != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL && rn1 != 0 ) {
-            String precipStr = localUnits.convertUnitsStr(wData.getUnits().getPrecipitationUnit(), rn1);
-            views.setTextViewText(R.id.current_pm, " "+precipStr + localUnits.getPrecipitationUnit());
+            views.setTextViewText(R.id.current_pm, " "+String.valueOf(rn1) + localUnits.getPrecipitationUnit());
         }
         else {
             int pm10Grade = currentData.getPm10Grade();
@@ -98,18 +95,16 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
             }
         }
 
-        double minTemperature = currentData.getMinTemperature();
-        double maxTemperature = currentData.getMaxTemperature();
-        double temp;
+        int minTemperature = (int)currentData.getMinTemperature();
+        int maxTemperature = (int)currentData.getMaxTemperature();
+
         String today_temperature = "";
         if (minTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL)  {
-            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), minTemperature);
-            today_temperature += String.valueOf(Math.round(temp))+"°";
+            today_temperature += String.valueOf(minTemperature)+"°";
         }
         if (maxTemperature != WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL)  {
             today_temperature += "/";
-            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), maxTemperature);
-            today_temperature += String.valueOf(Math.round(temp))+"°";
+            today_temperature += String.valueOf(maxTemperature)+"°";
         }
         views.setTextViewText(R.id.today_temperature, today_temperature);
     }

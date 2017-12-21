@@ -141,7 +141,7 @@ public class WeatherElement {
      * @param stnDateTime : yyyy.MM.dd.HH:mm
      * @return
      */
-    public static Date makeDateFromStrDateAndTime(String date, String time, String stnDateTime) {
+    public static Date makeDateFromStrDateAndTime(String date, int time, String stnDateTime) {
         Date retDate = null;
 
         if (stnDateTime != null) {
@@ -155,7 +155,7 @@ public class WeatherElement {
             return retDate;
         }
 
-        if (time == null) {
+        if (time == -1) {
             SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMMdd");
             try {
                 retDate = transFormat.parse(date);
@@ -163,9 +163,9 @@ public class WeatherElement {
                 e.printStackTrace();
             }
         } else {
-            SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMMddHHmm");
+            SimpleDateFormat transFormat = new SimpleDateFormat("yyyyMMddHH");
             try {
-                retDate = transFormat.parse(date+time);
+                retDate = transFormat.parse(date+String.valueOf(time));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -362,7 +362,7 @@ public class WeatherElement {
             if (shortestDate != null) {
                 // compare base time
                 String yesterdayCmpStrDate = findYesterdayDateString();
-                Date cmpDate = WeatherElement.makeDateFromStrDateAndTime(yesterdayCmpStrDate, weatherCurrent.getStrTime(), weatherCurrent.getStnDateTime());
+                Date cmpDate = WeatherElement.makeDateFromStrDateAndTime(yesterdayCmpStrDate, weatherCurrent.getTime(), weatherCurrent.getStnDateTime());
 
                 int nearnestIdx = -1;
                 long minInterval = 999999999;

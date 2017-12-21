@@ -60,7 +60,7 @@ public class W4x1Hourly extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetHourlyData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetHourlyData(Context context, RemoteViews views, WidgetData wData) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -74,10 +74,8 @@ public class W4x1Hourly extends TwWidgetProvider {
 
         views.setTextViewText(R.id.label_now, context.getString(R.string.now));
 
-        double temp;
         Calendar calendar = Calendar.getInstance();
-        String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-        views.setTextViewText(R.id.now_temperature, tempStr+"°");
+        views.setTextViewText(R.id.now_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
         if (skyResourceId == -1) {
@@ -92,8 +90,7 @@ public class W4x1Hourly extends TwWidgetProvider {
             String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY))
                     + context.getString(R.string.hour);
             views.setTextViewText(labelIds[i], hour);
-            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), hourlyData.getTemperature());
-            views.setTextViewText(tempIds[i], String.valueOf(Math.round(temp))+"°");
+            views.setTextViewText(tempIds[i], String.valueOf((int)hourlyData.getTemperature())+"°");
 
             if (hourlyData.getSky() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
                 skyResourceId = context.getResources().getIdentifier(hourlyData.getSkyImageName(),
@@ -106,9 +103,9 @@ public class W4x1Hourly extends TwWidgetProvider {
         }
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData) {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
-        setWidgetHourlyData(context, views, wData, localUnits);
+        setWidgetHourlyData(context, views, wData);
     }
 }
 

@@ -71,8 +71,7 @@ public class W4x1Current3Hourly extends ClockAndCurrentWeather {
             return;
         }
 
-        String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-        views.setTextViewText(R.id.current_temperature, tempStr+"°");
+        views.setTextViewText(R.id.current_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
         if (skyResourceId == -1) {
@@ -82,8 +81,6 @@ public class W4x1Current3Hourly extends ClockAndCurrentWeather {
 
         views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, wData, localUnits));
 
-
-        double temp;
         Calendar calendar = Calendar.getInstance();
 
         for (int i=0; i<3; i++) {
@@ -93,8 +90,7 @@ public class W4x1Current3Hourly extends ClockAndCurrentWeather {
             String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY))
                     + context.getString(R.string.hour);
             views.setTextViewText(labelIds[i], hour);
-            temp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), hourlyData.getTemperature());
-            views.setTextViewText(tempIds[i], String.valueOf(Math.round(temp))+"°");
+            views.setTextViewText(tempIds[i], String.valueOf((int)hourlyData.getTemperature())+"°");
 
             if (hourlyData.getSky() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
                 skyResourceId = context.getResources().getIdentifier(hourlyData.getSkyImageName(), "drawable", context.getPackageName());

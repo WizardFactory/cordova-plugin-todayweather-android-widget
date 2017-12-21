@@ -98,8 +98,8 @@ public class WeatherShortestElement {
                         retShortestElements[i].setSky(reader.optDouble("sky", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
                         retShortestElements[i].setLgt(reader.optDouble("lgt", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
 
-                        Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retShortestElements[i].getStrDate(), retShortestElements[i].getStrTime(), null);
-                        retShortestElements[i].setDate(makeDate);
+                        //Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retShortestElements[i].getStrDate(), retShortestElements[i].getStrTime(), null);
+                        //retShortestElements[i].setDate(makeDate);
                     }
                     else {
                         Log.e("WeatherShortestElement", "Shortest[" + i + "] json string is NULL");

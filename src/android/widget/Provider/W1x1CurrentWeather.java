@@ -42,7 +42,7 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -58,8 +58,7 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
             return;
         }
 
-        String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-        views.setTextViewText(R.id.current_temperature, tempStr+"°");
+        views.setTextViewText(R.id.current_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
         if (skyResourceId == -1) {

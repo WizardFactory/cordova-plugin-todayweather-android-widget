@@ -53,7 +53,7 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -65,15 +65,11 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
 
         // process current weather data
         WeatherData currentData = wData.getCurrentWeather();
-        double tempMax;
-        double tempMin;
+
         if (currentData != null) {
-            String tempStr = localUnits.convertUnitsStr(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-            tempMax = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getMaxTemperature());
-            tempMin = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getMinTemperature());
-            views.setTextViewText(R.id.yesterday_temperature, tempStr+"°");
-            views.setTextViewText(R.id.today_high_temperature, String.valueOf(Math.round(tempMax)));
-            views.setTextViewText(R.id.today_low_temperature, String.valueOf(Math.round(tempMin)));
+            views.setTextViewText(R.id.yesterday_temperature, String.valueOf(Math.floor(currentData.getTemperature()))+"°");
+            views.setTextViewText(R.id.today_high_temperature, String.valueOf((int)currentData.getMaxTemperature()));
+            views.setTextViewText(R.id.today_low_temperature, String.valueOf((int)currentData.getMinTemperature()));
 //                views.setTextViewText(R.id.cmp_yesterday_temperature, currentData.getSummary());
             int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
             if (skyResourceId == -1) {
@@ -87,10 +83,8 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
         // process yesterday that same as current time, weather data
         WeatherData yesterdayData = wData.getBefore24hWeather();
         if (yesterdayData != null) {
-            tempMax = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), yesterdayData.getMaxTemperature());
-            tempMin = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), yesterdayData.getMinTemperature());
-            views.setTextViewText(R.id.yesterday_high_temperature, String.valueOf(Math.round(tempMax)));
-            views.setTextViewText(R.id.yesterday_low_temperature, String.valueOf(Math.round(tempMin)));
+            views.setTextViewText(R.id.yesterday_high_temperature, String.valueOf((int)yesterdayData.getMaxTemperature()));
+            views.setTextViewText(R.id.yesterday_low_temperature, String.valueOf((int)yesterdayData.getMinTemperature()));
         } else {
             Log.e(TAG, "yesterdayElement is NULL");
         }
@@ -98,8 +92,8 @@ public class W2x1WidgetProvider extends TwWidgetProvider {
         int cmpTemp = 0;
         String cmpYesterdayTemperatureStr = "";
         if (currentData != null && yesterdayData != null) {
-            double currentTemp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), currentData.getTemperature());
-            double before24hTemp = localUnits.convertUnits(wData.getUnits().getTemperatureUnit(), yesterdayData.getTemperature());
+            double currentTemp = currentData.getTemperature();
+            double before24hTemp = yesterdayData.getTemperature();
             cmpTemp = (int)Math.round(currentTemp - before24hTemp);
             if (cmpTemp == 0) {
                 cmpYesterdayTemperatureStr = context.getString(R.string.same_yesterday);

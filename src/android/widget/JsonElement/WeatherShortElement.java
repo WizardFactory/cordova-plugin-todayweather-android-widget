@@ -14,7 +14,7 @@ import java.util.Date;
 public class WeatherShortElement {
     private Date date = null;
     private String strDate = null;
-    private String strTime = null;
+    private int time = -1;
     private double pop = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
     private double pty = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
     private double r06 = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
@@ -37,8 +37,8 @@ public class WeatherShortElement {
         return strDate;
     }
 
-    public String getStrTime() {
-        return strTime;
+    public int getTime() {
+        return time;
     }
 
     public double getPop() {
@@ -101,8 +101,8 @@ public class WeatherShortElement {
         this.strDate = strDate;
     }
 
-    public void setStrTime(String strTime) {
-        this.strTime = strTime;
+    public void setTime(int time) {
+        this.time = time;
     }
 
     public void setPop(double pop) {
@@ -173,7 +173,7 @@ public class WeatherShortElement {
                         retShortElements[i] = new WeatherShortElement();
 
                         retShortElements[i].setStrDate(reader.optString("date", null));
-                        retShortElements[i].setStrTime(reader.optString("time", null));
+                        retShortElements[i].setTime(reader.optInt("time", -1));
                         retShortElements[i].setPop(reader.optDouble("pop", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
                         retShortElements[i].setPty(reader.optDouble("pty", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
                         retShortElements[i].setR06(reader.optDouble("r06", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
@@ -188,7 +188,7 @@ public class WeatherShortElement {
                         retShortElements[i].setWsd(reader.optDouble("wsd", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
                         retShortElements[i].setVec(reader.optDouble("vec", WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL));
 
-                        Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retShortElements[i].getStrDate(), retShortElements[i].getStrTime(), null);
+                        Date makeDate = WeatherElement.makeDateFromStrDateAndTime(retShortElements[i].getStrDate(), retShortElements[i].getTime(), null);
                         retShortElements[i].setDate(makeDate);
                     }
                     else {

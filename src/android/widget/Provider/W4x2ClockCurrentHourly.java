@@ -31,7 +31,7 @@ public class W4x2ClockCurrentHourly extends ClockAndCurrentWeather {
     static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
         ClockAndCurrentWeather.setWidgetClockCurrentData(context, views, wData, localUnits);
-        W4x1Hourly.setWidgetHourlyData(context, views, wData, localUnits);
+        W4x1Hourly.setWidgetHourlyData(context, views, wData);
     }
 }
 

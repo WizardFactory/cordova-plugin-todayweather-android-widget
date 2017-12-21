@@ -59,8 +59,9 @@ import java.util.Locale;
  */
 public class WidgetUpdateService extends Service {
     private final static String SERVER_URL = "https://todayweather.wizardfactory.net";
-    private final static String KMA_API_URL = "/v000803/town";
-    private final static String WORLD_WEATHER_API_URL = "/ww/010000/current/2?gcode=";
+    //private final static String KMA_API_URL = "/v000803/town";
+    //private final static String WORLD_WEATHER_API_URL = "/ww/010000/current/2?gcode=";
+    private final static String GEOINFO_TO_WEATHER_API_URL = "/weather/coord";
 
     private LocationManager mLocationManager = null;
     private Context mContext;
@@ -69,8 +70,8 @@ public class WidgetUpdateService extends Service {
 
     private Units mLocalUnits = null;
 
-    static final int MSG_GET_GEOINFO = 1;
-    static final int MSG_GET_KR_ADDRESS = 2;
+//    static final int MSG_GET_GEOINFO = 1;
+//    static final int MSG_GET_KR_ADDRESS = 2;
     static final int MSG_GET_WEATHER_INFO = 3;
     static final int MSG_DRAW_WIDGET = 4;
 
@@ -90,12 +91,12 @@ public class WidgetUpdateService extends Service {
             }
 
             switch (msg.what) {
-                case MSG_GET_GEOINFO:
-                    getGeoInfo(msg.arg1, msg.arg2);
-                    break;
-                case MSG_GET_KR_ADDRESS:
-                    getKrAddressInfo(msg.arg1, msg.arg2);
-                    break;
+//                case MSG_GET_GEOINFO:
+//                    getGeoInfo(msg.arg1, msg.arg2);
+//                    break;
+//                case MSG_GET_KR_ADDRESS:
+//                    getKrAddressInfo(msg.arg1, msg.arg2);
+//                    break;
                 case MSG_GET_WEATHER_INFO:
                     getWeatherInfo(msg.arg1, msg.arg2);
                     break;
@@ -160,7 +161,7 @@ public class WidgetUpdateService extends Service {
                 Log.i("Service", "on Receive from broadcast receiver");
                 if (isNetworkConnected(getApplicationContext())  == true) {
                     for(TransWeather transWeather : mTransWeatherInfoList){
-                        if (transWeather.msgWhat >= MSG_GET_GEOINFO) {
+                        if (transWeather.msgWhat >= MSG_GET_WEATHER_INFO) {
                             Log.i("Service", "retry widgetId:"+transWeather.widgetId+", startId="+transWeather.startId+", what="+transWeather.msgWhat);
                             mHandler.sendMessage(Message.obtain(null, transWeather.msgWhat, transWeather.widgetId, transWeather.startId));
                         }
@@ -339,7 +340,7 @@ public class WidgetUpdateService extends Service {
             }
 
             if (transWeather.geoInfo != null) {
-                mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, widgetId, -1));
+                mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, -1));
             }
 
             Criteria criteria = new Criteria();
@@ -352,7 +353,7 @@ public class WidgetUpdateService extends Service {
                     final double lon = location.getLongitude();
                     final double lat = location.getLatitude();
                     Log.i("Service", "widgetId: "+widgetId+" startId: "+startId+", Loc listen lat: " + lat + ", lon: " + lon + ", provider: " + location.getProvider());
-                    mHandler.sendMessage(Message.obtain(null, MSG_GET_GEOINFO, widgetId, startId));
+                    mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
                 }
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -477,7 +478,7 @@ public class WidgetUpdateService extends Service {
                     Log.i("Service", transWeather.geoInfo.getAddress());
 
                     if (transWeather.geoInfo.getCountry().equals("KR")) {
-                        mHandler.sendMessage(Message.obtain(null, MSG_GET_KR_ADDRESS, widgetId, startId));
+                        mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
                     }
                     else {
                         mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
@@ -487,7 +488,7 @@ public class WidgetUpdateService extends Service {
                     Toast.makeText(getApplicationContext(), R.string.fail_to_get_location, Toast.LENGTH_LONG).show();
                     Log.e("Service", e.toString());
 
-                    mHandler.sendMessageDelayed(Message.obtain(null, MSG_GET_GEOINFO, widgetId, startId), 60000);
+                    mHandler.sendMessageDelayed(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId), 60000);
                 }
             }
         }).execute();
@@ -535,17 +536,15 @@ public class WidgetUpdateService extends Service {
         String url = null;
         Log.i("WidgetUpdateService", "get weather info geo info="+geoInfo.toString());
 
-        if (geoInfo.getCountry() == null || geoInfo.getCountry().equals("KR")) {
-            String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
-            if (addr != null) {
-                url = SERVER_URL + KMA_API_URL + addr;
-                Log.i("Service", "url=" + url);
-            }
-        }
-        else {
-            url = SERVER_URL + WORLD_WEATHER_API_URL + geoInfo.getLat() + "," + geoInfo.getLng();
-            Log.i("Service", "url=" + url);
-        }
+        url = SERVER_URL + GEOINFO_TO_WEATHER_API_URL + "/" + geoInfo.getLat() + "," + geoInfo.getLng();
+        url += "?"+"temperatureUnit="+mLocalUnits.getTemperatureUnit();
+        url += "&"+"distanceUnit="+mLocalUnits.getDistanceUnit();
+        url += "&"+"airUnit="+mLocalUnits.getAirUnit();
+        url += "&"+"precipitationUnit="+mLocalUnits.getPrecipitationUnit();
+        url += "&"+"pressureUnit="+mLocalUnits.getPressureUnit();
+        url += "&"+"windSpeedUnit="+mLocalUnits.getWindSpeedUnit();
+
+        Log.i("Service", "url=" + url);
 
         if (url == null) {
             Log.e("Service", "url is null on get weather info");
@@ -568,16 +567,41 @@ public class WidgetUpdateService extends Service {
         }).execute();
     }
 
+    private String getSource(String jsonStr) {
+        try {
+            JSONObject reader = new JSONObject(jsonStr);
+            if (reader != null) {
+                String source = null;
+                if (reader.has("source")) {
+                    source = reader.optString("source");
+                }
+
+                return source;
+            }
+        } catch (JSONException e) {
+            Log.e("WorldWeatherElement", "JSONException: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private void updateWidget(int widgetId, final int startId) {
         Log.i("WidgetUpdateService", "update widget="+widgetId);
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
-        RemoteViews views;
-        if (transWeather.geoInfo.getCountry() == null || transWeather.geoInfo.getCountry().equals("KR")) {
+        RemoteViews views = null;
+
+        String src = this.getSource(transWeather.strJsonWeatherInfo);
+        Log.i("WidgetUpdateService", "source="+src);
+        if (src.equals("KMA")) {
             views = updateKrWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
         }
-        else {
+        else if (src.equals("DSF")) {
             views = updateWorldWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
+        }
+        else {
+            Log.e("WidgetUpdateService", "unknown source="+src);
         }
 
         if (views != null) {
@@ -624,13 +648,13 @@ public class WidgetUpdateService extends Service {
             wData.setCurrentWeather(WorldWeatherElement.getCurrentWeather(jsonStr));
             wData.setBefore24hWeather(WorldWeatherElement.getBefore24hWeather(jsonStr));
             W2x1WidgetProvider.setWidgetStyle(context, widgetId, views);
-            W2x1WidgetProvider.setWidgetData(context, views, wData, mLocalUnits);
+            W2x1WidgetProvider.setWidgetData(context, views, wData);
             Log.i("UpdateWorldWeather", "set2x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w1x1_current_weather) {
             wData.setCurrentWeather(WorldWeatherElement.getCurrentWeather(jsonStr));
             W1x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W1x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            W1x1CurrentWeather.setWidgetData(context, views, wData);
             Log.i("UpdateWorldWeather", "set 1x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w2x1_current_weather) {
@@ -667,7 +691,7 @@ public class WidgetUpdateService extends Service {
                 wData.setDayWeather(i, WorldWeatherElement.getDayWeatherFromToday(jsonStr, i-1));
             }
             DailyWeather.setWidgetStyle(context, widgetId, views);
-            DailyWeather.setWidgetData(context, views, wData, mLocalUnits);
+            DailyWeather.setWidgetData(context, views, wData);
             Log.i("UpdateWorldWeather", "set 4x1 daily weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.clock_and_three_days) {
@@ -676,7 +700,7 @@ public class WidgetUpdateService extends Service {
             wData.setDayWeather(1, WorldWeatherElement.getDayWeatherFromToday(jsonStr, 0));
             wData.setDayWeather(2, WorldWeatherElement.getDayWeatherFromToday(jsonStr, 1));
             ClockAndThreeDays.setWidgetStyle(context, widgetId, views);
-            ClockAndThreeDays.setWidgetData(context, views, wData, mLocalUnits);
+            ClockAndThreeDays.setWidgetData(context, views, wData);
             Log.i("UpdateWorldWeather", "set 4x1 clock and three days id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x2_clock_current_daily) {
@@ -699,7 +723,7 @@ public class WidgetUpdateService extends Service {
                 index++;
             }
             W4x1Hourly.setWidgetStyle(context, widgetId, views);
-            W4x1Hourly.setWidgetData(context, views, wData, mLocalUnits);
+            W4x1Hourly.setWidgetData(context, views, wData);
             Log.i("UpdateWidgetService", "set 4x1 hourly id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x1_current_hourly) {
@@ -801,12 +825,12 @@ public class WidgetUpdateService extends Service {
 
         if (mLayoutId == R.layout.w2x1_widget_layout) {
             W2x1WidgetProvider.setWidgetStyle(context, widgetId, views);
-            W2x1WidgetProvider.setWidgetData(context, views, wData, mLocalUnits);
+            W2x1WidgetProvider.setWidgetData(context, views, wData);
             Log.i("UpdateWidgetService", "set2x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w1x1_current_weather) {
             W1x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W1x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            W1x1CurrentWeather.setWidgetData(context, views, wData);
             Log.i("UpdateWidgetService", "set 1x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w2x1_current_weather) {
@@ -831,12 +855,12 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.daily_weather) {
             DailyWeather.setWidgetStyle(context, widgetId, views);
-            DailyWeather.setWidgetData(context, views, wData, mLocalUnits);
+            DailyWeather.setWidgetData(context, views, wData);
             Log.i("UpdateWidgetService", "set 4x1 daily weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.clock_and_three_days) {
             ClockAndThreeDays.setWidgetStyle(context, widgetId, views);
-            ClockAndThreeDays.setWidgetData(context, views, wData, mLocalUnits);
+            ClockAndThreeDays.setWidgetData(context, views, wData);
             Log.i("UpdateWidgetService", "set 4x1 clock and three days id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x2_clock_current_daily) {
@@ -851,7 +875,7 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.w4x1_hourly) {
             W4x1Hourly.setWidgetStyle(context, widgetId, views);
-            W4x1Hourly.setWidgetData(context, views, wData, mLocalUnits);
+            W4x1Hourly.setWidgetData(context, views, wData);
             Log.i("UpdateWidgetService", "set 4x1 hourly id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x2_clock_current_hourly) {
