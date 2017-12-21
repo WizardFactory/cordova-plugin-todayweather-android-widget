@@ -25,6 +25,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     //It needs to sync with cordova-plugin-app-preferences plugin
     private static final String APP_PREFS_NAME = "net.wizardfactory.todayweather_preferences";
+    private static final String APP_PREFS_NAME2 = "group.net.wizardfactory.todayweather";
     private static final String APP_CITY_LIST_KEY = "cityList";
     private static final String APP_UNITS_KEY = "units";
     private static final String APP_UPDATE_INTERVAL_KEY = "updateInterval";
@@ -152,7 +153,11 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     public static JSONArray loadCityListPref(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(APP_PREFS_NAME, 0);
+        SharedPreferences prefs = context.getSharedPreferences(APP_PREFS_NAME2, 0);
+
+        if (!prefs.contains(APP_CITY_LIST_KEY)) {
+            prefs = context.getSharedPreferences(APP_PREFS_NAME, 0);
+        }
 
         if (prefs.contains(APP_CITY_LIST_KEY)) {
             String jsonStr = prefs.getAll().get(APP_CITY_LIST_KEY).toString();
@@ -177,7 +182,10 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     public static Units loadUnitsPref(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(APP_PREFS_NAME, 0);
+        SharedPreferences prefs = context.getSharedPreferences(APP_PREFS_NAME2, 0);
+        if (!prefs.contains(APP_UNITS_KEY)) {
+            prefs = context.getSharedPreferences(APP_PREFS_NAME, 0);
+        }
 
         if (prefs.contains(APP_UNITS_KEY)) {
             String jsonStr = prefs.getAll().get(APP_UNITS_KEY).toString();
@@ -235,6 +243,7 @@ public class SettingsActivity extends PreferenceActivity {
         long minInterval = widgetPrefs.getLong(WIDGET_UPDATE_INTERVAL_PREFIX_KEY + appWidgetId, -1);
 
         if (minInterval == -1) {
+            //최근버전(0.9.60이상)에서는 앱내에서 위젯 설정하는 것이 없으므로 APP_PREFS_NAME2에서 읽을 필요는 없음
             SharedPreferences appPrefs = context.getSharedPreferences(APP_PREFS_NAME, 0);
             minInterval = appPrefs.getInt(APP_UPDATE_INTERVAL_KEY, 0);
             saveUpdateIntervalPref(context, appWidgetId, minInterval);
@@ -260,6 +269,7 @@ public class SettingsActivity extends PreferenceActivity {
         int opacity = widgetPrefs.getInt(WIDGET_TRANSPARENCY_PREFIX_KEY + appWidgetId, -1);
 
         if (opacity == -1) {
+            //최근버전(0.9.60이상)에서는 앱내에서 위젯 설정하는 것이 없으므로 APP_PREFS_NAME2에서 읽을 필요는 없음
             SharedPreferences appPrefs = context.getSharedPreferences(APP_PREFS_NAME, 0);
             opacity = 100 - appPrefs.getInt(APP_OPACITY_KEY, 69);
             saveTransparencyPref(context, appWidgetId, opacity);
