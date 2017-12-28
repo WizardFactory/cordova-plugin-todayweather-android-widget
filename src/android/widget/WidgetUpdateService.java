@@ -62,6 +62,7 @@ public class WidgetUpdateService extends Service {
     //private final static String KMA_API_URL = "/v000803/town";
     //private final static String WORLD_WEATHER_API_URL = "/ww/010000/current/2?gcode=";
     private final static String GEOINFO_TO_WEATHER_API_URL = "/weather/coord";
+    private final static String KMA_ADDR_API_URL = "/v000901/kma/addr";
 
     private LocationManager mLocationManager = null;
     private Context mContext;
@@ -533,10 +534,18 @@ public class WidgetUpdateService extends Service {
         }
 
         GeoInfo geoInfo = transWeather.geoInfo;
-        String url = null;
         Log.i("WidgetUpdateService", "get weather info geo info="+geoInfo.toString());
+        String url = null;
+        if (geoInfo.getLat() == 0 && geoInfo.getLng() == 0) {
+            String addr = AddressesElement.makeUrlAddress(geoInfo.getAddress());
+            if (addr != null) {
+                url = SERVER_URL + KMA_ADDR_API_URL + addr;
+            }
+        }
+        else {
+            url = SERVER_URL + GEOINFO_TO_WEATHER_API_URL + "/" + geoInfo.getLat() + "," + geoInfo.getLng();
+        }
 
-        url = SERVER_URL + GEOINFO_TO_WEATHER_API_URL + "/" + geoInfo.getLat() + "," + geoInfo.getLng();
         url += "?"+"temperatureUnit="+mLocalUnits.getTemperatureUnit();
         url += "&"+"distanceUnit="+mLocalUnits.getDistanceUnit();
         url += "&"+"airUnit="+mLocalUnits.getAirUnit();
