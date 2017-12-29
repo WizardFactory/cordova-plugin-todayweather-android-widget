@@ -353,7 +353,12 @@ public class WidgetUpdateService extends Service {
                 public void onLocationChanged(Location location) {
                     final double lon = location.getLongitude();
                     final double lat = location.getLatitude();
-                    Log.i("Service", "widgetId: "+widgetId+" startId: "+startId+", Loc listen lat: " + lat + ", lon: " + lon + ", provider: " + location.getProvider());
+                    Log.i("onLocationChanged", "widgetId: "+widgetId+" startId: "+startId+", Loc listen lat: " + lat + ", lon: " + lon + ", provider: " + location.getProvider());
+
+                    TransWeather transWeather = getTransWeatherInfo(widgetId);
+                    transWeather.geoInfo.setLat(transWeather.geoInfo.toNormalize(location.getLatitude()));
+                    transWeather.geoInfo.setLng(transWeather.geoInfo.toNormalize(location.getLongitude()));
+
                     mHandler.sendMessage(Message.obtain(null, MSG_GET_WEATHER_INFO, widgetId, startId));
                 }
                 @Override
@@ -529,9 +534,6 @@ public class WidgetUpdateService extends Service {
         Log.i("WidgetUpdateService", "get weather info widget="+widgetId);
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
-        if (transWeather.currentPosition) {
-            this.saveCurrentGeoInfo(getApplicationContext(), transWeather.geoInfo);
-        }
 
         GeoInfo geoInfo = transWeather.geoInfo;
         Log.i("WidgetUpdateService", "get weather info geo info="+geoInfo.toString());
@@ -595,6 +597,31 @@ public class WidgetUpdateService extends Service {
         return null;
     }
 
+    private GeoInfo getGeoInfo(String jsonStr) {
+        try {
+            GeoInfo geoInfo = new GeoInfo();
+            JSONObject reader = new JSONObject(jsonStr);
+            if (reader != null) {
+                if (reader.has("name")) {
+                    geoInfo.setName(reader.optString("name"));
+                }
+                if (reader.has("address")) {
+                    geoInfo.setAddress(reader.optString("address"));
+                }
+                if (reader.has("country")) {
+                    geoInfo.setCountry(reader.optString("country"));
+                }
+
+                return geoInfo;
+            }
+        } catch (JSONException e) {
+            Log.e("WorldWeatherElement", "JSONException: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private void updateWidget(int widgetId, final int startId) {
         Log.i("WidgetUpdateService", "update widget="+widgetId);
 
@@ -603,6 +630,15 @@ public class WidgetUpdateService extends Service {
 
         String src = this.getSource(transWeather.strJsonWeatherInfo);
         Log.i("WidgetUpdateService", "source="+src);
+
+        if (transWeather.currentPosition) {
+            GeoInfo weatherGeoInfo = this.getGeoInfo(transWeather.strJsonWeatherInfo);
+            transWeather.geoInfo.setName(weatherGeoInfo.getName());
+            transWeather.geoInfo.setCountry(weatherGeoInfo.getCountry());
+            transWeather.geoInfo.setAddress(weatherGeoInfo.getAddress());
+            this.saveCurrentGeoInfo(getApplicationContext(), transWeather.geoInfo);
+        }
+
         if (src.equals("KMA")) {
             views = updateKrWeatherWidget(widgetId, transWeather.strJsonWeatherInfo, transWeather.geoInfo.getName());
         }
@@ -663,7 +699,7 @@ public class WidgetUpdateService extends Service {
         else if (mLayoutId == R.layout.w1x1_current_weather) {
             wData.setCurrentWeather(WorldWeatherElement.getCurrentWeather(jsonStr));
             W1x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W1x1CurrentWeather.setWidgetData(context, views, wData);
+            W1x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
             Log.i("UpdateWorldWeather", "set 1x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w2x1_current_weather) {
@@ -839,7 +875,7 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.w1x1_current_weather) {
             W1x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W1x1CurrentWeather.setWidgetData(context, views, wData);
+            W1x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 1x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w2x1_current_weather) {
