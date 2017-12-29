@@ -1,9 +1,11 @@
 package net.wizardfactory.todayweather.widget.Provider;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 import android.util.TypedValue;
 import android.widget.RemoteViews;
 
@@ -42,7 +44,7 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData) {
+    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -68,22 +70,33 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
 
         int pm10Grade = currentData.getPm10Grade();
         int pm25Grade = currentData.getPm25Grade();
+        int color = -1;
+
         if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
             views.setTextViewText(R.id.current_pm, ":::");
             if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                views.setTextColor(R.id.current_pm, getColorAqiGrade(context, pm25Grade));
+                color = getColorAqiGrade(context, pm25Grade, localUnits.getAirUnit());
+                if (color != -1) {
+                    views.setTextColor(R.id.current_pm, color);
+                }
             }
             else {
-                views.setTextColor(R.id.current_pm, getColorAqiGrade(context, pm10Grade));
+                color = getColorAqiGrade(context, pm10Grade, localUnits.getAirUnit());
+                if (color != -1) {
+                    views.setTextColor(R.id.current_pm, color);
+                }
             }
         }
         else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
             views.setTextViewText(R.id.current_pm, ":::");
-            views.setTextColor(R.id.current_pm, getColorAqiGrade(context, pm25Grade));
+            color = getColorAqiGrade(context, pm25Grade, localUnits.getAirUnit());
+            if (color != -1) {
+                views.setTextColor(R.id.current_pm, color);
+            }
         }
     }
 
-    static private int getColorAqiGrade(Context context, int grade) {
+    static private int getColorAirKoreaGrade(Context context, int grade) {
         switch (grade) {
             case 1:
                 return ContextCompat.getColor(context, android.R.color.holo_blue_dark);
@@ -93,8 +106,39 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
                 return ContextCompat.getColor(context, android.R.color.holo_orange_dark);
             case 4:
                 return ContextCompat.getColor(context, android.R.color.holo_red_dark);
+            default:
+                Log.e(TAG, "Fail to find airkorea color grade="+grade);
         }
-        return ContextCompat.getColor(context, android.R.color.primary_text_dark);
+        return -1;
+    }
+
+    static private int getColorAirNowGrade(Context context, int grade) {
+        switch (grade) {
+            case 1:
+                return ContextCompat.getColor(context, android.R.color.holo_green_dark);
+            case 2:
+                return ContextCompat.getColor(context, android.R.color.holo_orange_light);
+            case 3:
+                return ContextCompat.getColor(context, android.R.color.holo_orange_dark);
+            case 4:
+                return ContextCompat.getColor(context, android.R.color.holo_red_dark);
+            case 5:
+                return ContextCompat.getColor(context, android.R.color.holo_purple);
+            case 6:
+                return Color.parseColor("#800000"); //maroon
+            default:
+                Log.e(TAG, "Fail to find airnow color grade="+grade);
+        }
+        return -1;
+    }
+
+    static private int getColorAqiGrade(Context context, int grade, String airUnit) {
+        if (airUnit.equals("airkorea") || airUnit.equals("airUnit_now"))  {
+            return getColorAirKoreaGrade(context, grade);
+        }
+        else {
+            return getColorAirNowGrade(context, grade);
+        }
     }
 }
 

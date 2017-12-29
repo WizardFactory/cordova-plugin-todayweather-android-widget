@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 
 /**
  *  This class http server connect form "GET" Type
@@ -56,6 +57,7 @@ public class GetHttpsServerAysncTask extends AsyncTask<String, String, String> {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setReadTimeout(30000);
             urlConnection.setConnectTimeout(30000);
+            urlConnection.setRequestProperty("Accept-Language", Locale.getDefault().getLanguage());
             urlConnection.setRequestMethod("GET");
             urlConnection.setDoInput(true);
 
