@@ -84,14 +84,14 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
             int pm25Grade = currentData.getPm25Grade();
             if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
                 if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                    views.setTextViewText(R.id.current_pm, " :::"+convertGradeToStr(context, pm25Grade));
+                    views.setTextViewText(R.id.current_pm, " :::"+ currentData.getPm25Str());
                 }
                 else {
-                    views.setTextViewText(R.id.current_pm, " :::"+convertGradeToStr(context, pm10Grade));
+                    views.setTextViewText(R.id.current_pm, " :::"+ currentData.getPm10Str());
                 }
             }
             else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                views.setTextViewText(R.id.current_pm, " :::"+convertGradeToStr(context, pm25Grade));
+                views.setTextViewText(R.id.current_pm, " :::"+ currentData.getPm25Str());
             }
         }
 

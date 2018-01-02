@@ -122,13 +122,13 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
                 today_tmn_tmx_pm_pp += " :::";
                 if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                    today_tmn_tmx_pm_pp += convertGradeToStr(context, pm25Grade);
+                    today_tmn_tmx_pm_pp += data.getPm25Str();
                 } else {
-                    today_tmn_tmx_pm_pp += convertGradeToStr(context, pm10Grade);
+                    today_tmn_tmx_pm_pp += data.getPm10Str();
                 }
             } else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
                 today_tmn_tmx_pm_pp += " :::";
-                today_tmn_tmx_pm_pp += convertGradeToStr(context, pm25Grade);
+                today_tmn_tmx_pm_pp += data.getPm25Str();
             }
         }
         return today_tmn_tmx_pm_pp;

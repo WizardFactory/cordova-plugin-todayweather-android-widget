@@ -133,7 +133,7 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
     }
 
     static private int getColorAqiGrade(Context context, int grade, String airUnit) {
-        if (airUnit.equals("airkorea") || airUnit.equals("airUnit_now"))  {
+        if (airUnit.equals("airkorea") || airUnit.equals("airkorea_who"))  {
             return getColorAirKoreaGrade(context, grade);
         }
         else {
