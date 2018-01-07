@@ -238,22 +238,4 @@ public class TwWidgetProvider extends AppWidgetProvider {
         Log.i(TAG, action);
     }
 
-    static protected String convertGradeToStr(Context context, int grade) {
-        switch (grade) {
-            case 1:
-                return context.getString(R.string.good);
-            case 2:
-                return context.getString(R.string.moderate);
-            case 3:
-                return context.getString(R.string.unhealthy);
-            case 4:
-                return context.getString(R.string.very_unhealthy);
-            case 5:
-                return context.getString(R.string.hazardous);
-            default:
-                Log.e(TAG, "Unknown grade="+grade);
-        }
-        return "";
-    }
-
 }
