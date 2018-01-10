@@ -272,12 +272,16 @@ public class WidgetUpdateService extends Service {
         Log.i("Service", "start update startId="+startId);
 
         //notice start updating
-        {
+        try {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int layoutId = appWidgetManager.getAppWidgetInfo(widgetId).initialLayout;
             RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
             views.setTextViewText(R.id.pubdate, "Loading");
             appWidgetManager.updateAppWidget(widgetId, views);
+        }
+        catch (Exception e) {
+            Log.e("Service", e.toString());
+            e.printStackTrace();
         }
 
         TransWeather transWeather = getTransWeatherInfo(widgetId);
