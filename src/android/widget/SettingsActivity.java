@@ -101,14 +101,28 @@ public class SettingsActivity extends PreferenceActivity {
         if (item.getItemId() == R.id.settings_ok) {
             final Context context = SettingsActivity.this;
 
-            ListPreference location = (ListPreference)settingsFragment.findPreference("location");
-            saveCityInfoPref(context, mAppWidgetId, location.getValue());
+            ListPreference location;
+            ListPreference refreshInterval;
+            int nRefreshInterval = 0;
+            ListPreference transparency;
+            int nTransparency = 0;
+            try {
+                location = (ListPreference)settingsFragment.findPreference("location");
+                saveCityInfoPref(context, mAppWidgetId, location.getValue());
 
-            ListPreference refreshInterval = (ListPreference)settingsFragment.findPreference("refreshInterval");
-            saveUpdateIntervalPref(context, mAppWidgetId, Integer.parseInt(refreshInterval.getValue()));
+                refreshInterval = (ListPreference)settingsFragment.findPreference("refreshInterval");
+                nRefreshInterval =  Integer.parseInt(refreshInterval.getValue());
 
-            ListPreference transparency = (ListPreference)settingsFragment.findPreference("transparency");
-            saveTransparencyPref(context, mAppWidgetId, Integer.parseInt(transparency.getValue()));
+                transparency = (ListPreference)settingsFragment.findPreference("transparency");
+                nTransparency = Integer.parseInt(transparency.getValue());
+            }
+            catch(Exception e) {
+                Log.e(TAG, e.toString());
+                e.printStackTrace();
+            }
+
+            saveUpdateIntervalPref(context, mAppWidgetId, nRefreshInterval);
+            saveTransparencyPref(context, mAppWidgetId, nTransparency);
 
             com.kizitonwose.colorpreference.ColorPreference backgroundColor = (com.kizitonwose.colorpreference.ColorPreference)settingsFragment.findPreference("backgroundColor");
             saveBgColorPref(context, mAppWidgetId, backgroundColor.getValue());
