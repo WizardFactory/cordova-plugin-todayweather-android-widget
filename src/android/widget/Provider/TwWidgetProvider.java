@@ -137,7 +137,11 @@ public class TwWidgetProvider extends AppWidgetProvider {
         // update widget weather data using service
         Intent serviceIntent = new Intent(context, WidgetUpdateService.class);
         serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        context.startService(serviceIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent);
+        } else {
+            context.startService(serviceIntent);
+        }
     }
 
     private PendingIntent getAlarmIntent(Context context, int appWidgetId) {
