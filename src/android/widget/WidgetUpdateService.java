@@ -637,6 +637,11 @@ public class WidgetUpdateService extends Service {
 
         if (transWeather.currentPosition) {
             GeoInfo weatherGeoInfo = this.getGeoInfo(transWeather.strJsonWeatherInfo);
+            if (weatherGeoInfo == null) {
+                Log.e("WidgetUpdateService", "weather geo info is null startId="+startId);
+                stopSelf(startId);
+                return;
+            }
             transWeather.geoInfo.setName(weatherGeoInfo.getName());
             transWeather.geoInfo.setCountry(weatherGeoInfo.getCountry());
             transWeather.geoInfo.setAddress(weatherGeoInfo.getAddress());
