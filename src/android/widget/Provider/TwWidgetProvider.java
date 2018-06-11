@@ -105,8 +105,16 @@ public class TwWidgetProvider extends AppWidgetProvider {
     static public void setPendingIntentToRefresh(Context context, int appWidgetId, RemoteViews views) {
         Intent serviceIntent = new Intent(context, WidgetUpdateService.class);
         serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        PendingIntent pendingIntent = PendingIntent.getService(context, appWidgetId, serviceIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            pendingIntent = PendingIntent.getForegroundService(context, appWidgetId,
+                    serviceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+        else {
+            pendingIntent = PendingIntent.getService(context, appWidgetId, serviceIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
         views.setOnClickPendingIntent(R.id.ic_refresh, pendingIntent);
         views.setOnClickPendingIntent(R.id.pubdate, pendingIntent);
     }
