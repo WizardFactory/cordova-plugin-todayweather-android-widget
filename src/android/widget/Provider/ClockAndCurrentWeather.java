@@ -69,15 +69,23 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
         }
 
         if (Build.VERSION.SDK_INT >= 17) {
-            if (currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+            String timeZoneId = currentData.getTimeZoneId();
+            if (timeZoneId == null &&
+                    currentData.getTimeZoneOffsetMS() != WeatherElement.DEFAULT_WEATHER_INT_VAL)
+            {
                 String zoneIds[] = TimeZone.getAvailableIDs(currentData.getTimeZoneOffsetMS());
                 if (zoneIds.length > 0) {
-                    views.setString(R.id.time, "setTimeZone", zoneIds[0]);
-                    views.setString(R.id.date, "setTimeZone", zoneIds[0]);
-                    views.setString(R.id.am_pm, "setTimeZone", zoneIds[0]);
-                } else {
-                    Log.e(TAG, "Fail to find time zone ids");
+                    timeZoneId = zoneIds[0];
                 }
+            }
+
+            if (timeZoneId != null) {
+                views.setString(R.id.time, "setTimeZone", timeZoneId);
+                views.setString(R.id.date, "setTimeZone", timeZoneId);
+                views.setString(R.id.am_pm, "setTimeZone", timeZoneId);
+            }
+            else {
+                Log.e(TAG, "Fail to find time zone ids");
             }
         }
 

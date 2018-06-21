@@ -94,6 +94,7 @@ public class WorldWeatherElement {
             if (reader != null) {
                 JSONObject timezone = reader.getJSONObject("timezone");
                 currentWeather.setTimeZoneOffsetMS(timezone.getInt("ms"));
+                currentWeather.setTimeZoneId(timezone.getString("timezoneId"));
 
                 JSONArray thisTime = reader.getJSONArray("thisTime");
                 JSONObject current = thisTime.getJSONObject(1);
