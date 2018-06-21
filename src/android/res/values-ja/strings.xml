@@ -13,7 +13,8 @@
     <string name="current_position">現在位置</string>
     <string name="ok">確認</string>
     <string name="cancel">中止</string>
-    <string name="aqi">大気質</string>
+    <string name="air_info">空気の質</string>
+    <string name="aqi">大気質指標</string>
     <string name="pm10">PM10</string>
     <string name="pm25">PM2.5</string>
     <string name="good">よい</string>

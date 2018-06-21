@@ -3,11 +3,13 @@ package net.wizardfactory.todayweather.widget;
 
 import android.app.AlertDialog;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -27,6 +29,7 @@ public class SettingsFragment extends PreferenceFragment {
     private SharedPreferences mSharedPreferences;
 
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+    private boolean mHasAirInfo = true;
 
     private boolean setCityList() {
         ListPreference location = (ListPreference)findPreference("location");
@@ -116,6 +119,35 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+
+        return true;
+    }
+
+    private boolean setAirInfoList() {
+        int savedAirInfoIndex = SettingsActivity.loadAirInfoIndexPref(getActivity(), mAppWidgetId);
+        Log.i("SettingsFragment", "airInfoIndex="+savedAirInfoIndex);
+
+        ListPreference airInfo = (ListPreference)findPreference("airInfo");
+
+        if (mHasAirInfo) {
+            airInfo.setValueIndex(savedAirInfoIndex);
+            airInfo.setSummary(airInfo.getEntry());
+
+            airInfo.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    ListPreference airInfo = (ListPreference) preference;
+                    int index = airInfo.findIndexOfValue((String) newValue);
+                    CharSequence[] entries = airInfo.getEntries();
+                    airInfo.setSummary(entries[index]);
+                    return true;
+                }
+            });
+        }
+        else {
+            PreferenceCategory mCategory = (PreferenceCategory) findPreference("general");
+            mCategory.removePreference(airInfo);
+        }
 
         return true;
     }
@@ -220,6 +252,10 @@ public class SettingsFragment extends PreferenceFragment {
             onShowAlertDialog();
             return;
         }
+        if (setAirInfoList() == false) {
+            onShowAlertDialog();
+            return;
+        }
         if (setBackgroundColorList() == false) {
             onShowAlertDialog();
             return;
@@ -249,7 +285,8 @@ public class SettingsFragment extends PreferenceFragment {
         alert.show();
     }
 
-    public void setAppWidgetId(int appWidgetId) {
+    public void setAppInfo(int appWidgetId, boolean hasAirInfo) {
         mAppWidgetId = appWidgetId;
+        mHasAirInfo = hasAirInfo;
     }
 }

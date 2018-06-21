@@ -13,7 +13,8 @@
     <string name="current_position">当前位置</string>
     <string name="ok">确认</string>
     <string name="cancel">取消</string>
-    <string name="aqi">空气质量</string>
+    <string name="air_info">空气质量指数</string>
+    <string name="aqi">空气质量指数</string>
     <string name="pm10">细微</string>
     <string name="pm25">超小细微</string>
     <string name="good">优</string>

@@ -37,6 +37,7 @@ public class SettingsActivity extends PreferenceActivity {
     private static final String WIDGET_TRANSPARENCY_PREFIX_KEY = "transparency_";
     private static final String WIDGET_BG_COLOR_PREFIX_KEY = "bgColor_";
     private static final String WIDGET_FONT_COLOR_PREFIX_KEY = "fontColor_";
+    private static final String WIDGET_AIR_INFO_PREFIX_KEY = "airInfo_";
 
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private SettingsFragment settingsFragment;
@@ -62,7 +63,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Display the fragment as the main content.
         settingsFragment = new SettingsFragment();
-        settingsFragment.setAppWidgetId(mAppWidgetId);
+        settingsFragment.setAppInfo(mAppWidgetId, hasAirInfo());
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, settingsFragment)
                 .commit();
@@ -83,6 +84,22 @@ public class SettingsActivity extends PreferenceActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    private boolean hasAirInfo() {
+        boolean hasAirInfo = true;
+        final Context context = SettingsActivity.this;
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
+        if (layoutId == R.layout.air_quality_index ||
+                layoutId == R.layout.clock_and_three_days ||
+                layoutId == R.layout.daily_weather ||
+                layoutId == R.layout.w2x1_widget_layout ||
+                layoutId == R.layout.w4x1_hourly )
+        {
+            hasAirInfo = false;
+        }
+        return hasAirInfo;
+    }
+    
     private PendingIntent getAlarmIntent(Context context, int appWidgetId) {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
@@ -106,12 +123,18 @@ public class SettingsActivity extends PreferenceActivity {
             int nRefreshInterval = 0;
             ListPreference transparency;
             int nTransparency = 0;
+            ListPreference airInfo;
+            int airInfoIndex = 0;
+
             try {
                 location = (ListPreference)settingsFragment.findPreference("location");
                 saveCityInfoPref(context, mAppWidgetId, location.getValue());
 
                 refreshInterval = (ListPreference)settingsFragment.findPreference("refreshInterval");
                 nRefreshInterval =  Integer.parseInt(refreshInterval.getValue());
+
+                airInfo = (ListPreference)settingsFragment.findPreference("airInfo");
+                airInfoIndex = airInfo.findIndexOfValue(airInfo.getValue());
 
                 transparency = (ListPreference)settingsFragment.findPreference("transparency");
                 nTransparency = Integer.parseInt(transparency.getValue());
@@ -123,6 +146,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             saveUpdateIntervalPref(context, mAppWidgetId, nRefreshInterval);
             saveTransparencyPref(context, mAppWidgetId, nTransparency);
+            saveAirInfoIndexPref(context, mAppWidgetId, airInfoIndex);
 
             com.kizitonwose.colorpreference.ColorPreference backgroundColor = (com.kizitonwose.colorpreference.ColorPreference)settingsFragment.findPreference("backgroundColor");
             saveBgColorPref(context, mAppWidgetId, backgroundColor.getValue());
@@ -270,6 +294,18 @@ public class SettingsActivity extends PreferenceActivity {
         Log.i(TAG, "[widget_" + appWidgetId + "] update interval = " + minInterval);
         minInterval = minInterval * 60 * 1000;
         return minInterval;
+    }
+
+    public static int loadAirInfoIndexPref(Context context, int appWidgetId) {
+        SharedPreferences widgetPrefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0);
+        int airInfoIndex = widgetPrefs.getInt(WIDGET_AIR_INFO_PREFIX_KEY + appWidgetId, 0);
+        return airInfoIndex;
+    }
+
+    public static void saveAirInfoIndexPref(Context context, int appWidgetId, int index) {
+        SharedPreferences.Editor prefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0).edit();
+        prefs.putInt(WIDGET_AIR_INFO_PREFIX_KEY + appWidgetId, index);
+        prefs.apply();
     }
 
     public static void saveUpdateIntervalPref(Context context, int appWidgetId, long minInterval) {

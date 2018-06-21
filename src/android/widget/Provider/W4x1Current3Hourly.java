@@ -57,7 +57,7 @@ public class W4x1Current3Hourly extends ClockAndCurrentWeather {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views, WidgetData wData, Units localUnits) {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
 
         if (wData == null) {
@@ -79,7 +79,7 @@ public class W4x1Current3Hourly extends ClockAndCurrentWeather {
         }
         views.setImageViewResource(R.id.current_sky, skyResourceId);
 
-        views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, wData, localUnits));
+        views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, appWidgetId, wData, localUnits));
 
         Calendar calendar = Calendar.getInstance();
 
