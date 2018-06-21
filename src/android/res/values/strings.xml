@@ -19,6 +19,7 @@
     <string name="current_position">Current Location</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="air_info">Air Information</string>
     <string name="aqi">AQI</string>
     <string name="pm10">PM10</string>
     <string name="pm25">PM2.5</string>

@@ -49,7 +49,7 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views, WidgetData wData, Units localUnits) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -80,18 +80,26 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
             views.setTextViewText(R.id.current_pm, " "+String.valueOf(rn1) + localUnits.getPrecipitationUnit());
         }
         else {
-            int pm10Grade = currentData.getPm10Grade();
-            int pm25Grade = currentData.getPm25Grade();
-            if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                    views.setTextViewText(R.id.current_pm, " :::"+ currentData.getPm25Str());
-                }
-                else {
-                    views.setTextViewText(R.id.current_pm, " :::"+ currentData.getPm10Str());
-                }
+            int airInfoIndex = SettingsActivity.loadAirInfoIndexPref(context, appWidgetId);
+            int grade = WeatherElement.DEFAULT_WEATHER_INT_VAL;
+            String str = "";
+
+            Log.i(TAG, "set2x1CurrentWeather airInfoIndex=" + airInfoIndex);
+            if (airInfoIndex == 0) {
+                grade = currentData.getAqiGrade();
+                str = currentData.getAqiStr();
             }
-            else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                views.setTextViewText(R.id.current_pm, " :::"+ currentData.getPm25Str());
+            else if (airInfoIndex == 1) {
+                grade = currentData.getPm25Grade();
+                str = currentData.getPm25Str();
+            }
+            else if (airInfoIndex == 2) {
+                grade = currentData.getPm10Grade();
+                str = currentData.getPm10Str();
+            }
+
+            if (grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+                views.setTextViewText(R.id.current_pm, " :::"+ str);
             }
         }
 

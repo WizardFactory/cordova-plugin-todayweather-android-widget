@@ -21,8 +21,8 @@ public class W4x3ClockCurrentHourlyDaily extends W4x2ClockCurrentHourly {
         DailyWeather.setWidgetDailyStyle(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
-        W4x2ClockCurrentHourly.setWidgetData(context, views, wData, localUnits);
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views, WidgetData wData, Units localUnits) {
+        W4x2ClockCurrentHourly.setWidgetData(context, appWidgetId, views, wData, localUnits);
         DailyWeather.setWidgetDailyData(context, views, wData);
     }
 

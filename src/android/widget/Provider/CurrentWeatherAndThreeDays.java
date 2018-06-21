@@ -55,7 +55,9 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views,
+                                     WidgetData wData, Units localUnits)
+    {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
 
         if (wData == null) {
@@ -77,7 +79,7 @@ public class CurrentWeatherAndThreeDays extends ClockAndCurrentWeather {
         }
         views.setImageViewResource(R.id.current_sky, skyResourceId);
 
-        views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, wData, localUnits));
+        views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, appWidgetId, wData, localUnits));
 
         views.setTextViewText(R.id.label_yesterday, context.getString(R.string.yesterday));
         views.setTextViewText(R.id.label_today, context.getString(R.string.today));

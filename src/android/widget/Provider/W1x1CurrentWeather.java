@@ -44,7 +44,7 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToMenu(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views, WidgetData wData, Units localUnits) {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -68,28 +68,23 @@ public class W1x1CurrentWeather extends TwWidgetProvider {
         }
         views.setImageViewResource(R.id.current_sky, skyResourceId);
 
-        int pm10Grade = currentData.getPm10Grade();
-        int pm25Grade = currentData.getPm25Grade();
-        int color = -1;
+        int airInfoIndex = SettingsActivity.loadAirInfoIndexPref(context, appWidgetId);
+        int grade = WeatherElement.DEFAULT_WEATHER_INT_VAL;
 
-        if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-            views.setTextViewText(R.id.current_pm, ":::");
-            if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                color = getColorAqiGrade(context, pm25Grade, localUnits.getAirUnit());
-                if (color != -1) {
-                    views.setTextColor(R.id.current_pm, color);
-                }
-            }
-            else {
-                color = getColorAqiGrade(context, pm10Grade, localUnits.getAirUnit());
-                if (color != -1) {
-                    views.setTextColor(R.id.current_pm, color);
-                }
-            }
+        Log.i(TAG, "airInfoIndex=" + airInfoIndex);
+        if (airInfoIndex == 0) {
+            grade = currentData.getAqiGrade();
         }
-        else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+        else if (airInfoIndex == 1) {
+            grade = currentData.getPm25Grade();
+        }
+        else if (airInfoIndex == 2) {
+            grade = currentData.getPm10Grade();
+        }
+
+        if (grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
             views.setTextViewText(R.id.current_pm, ":::");
-            color = getColorAqiGrade(context, pm25Grade, localUnits.getAirUnit());
+            int color = getColorAqiGrade(context, grade, localUnits.getAirUnit());
             if (color != -1) {
                 views.setTextColor(R.id.current_pm, color);
             }

@@ -708,13 +708,13 @@ public class WidgetUpdateService extends Service {
         else if (mLayoutId == R.layout.w1x1_current_weather) {
             wData.setCurrentWeather(WorldWeatherElement.getCurrentWeather(jsonStr));
             W1x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W1x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            W1x1CurrentWeather.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWorldWeather", "set 1x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w2x1_current_weather) {
             wData.setCurrentWeather(WorldWeatherElement.getCurrentWeather(jsonStr));
             W2x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W2x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            W2x1CurrentWeather.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWorldWeather", "set 2x1 current weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.air_quality_index) {
@@ -726,7 +726,7 @@ public class WidgetUpdateService extends Service {
         else if (mLayoutId == R.layout.clock_and_current_weather) {
             wData.setCurrentWeather(WorldWeatherElement.getCurrentWeather(jsonStr));
             ClockAndCurrentWeather.setWidgetStyle(context, widgetId, views);
-            ClockAndCurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            ClockAndCurrentWeather.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWorldWeather", "set 3x1 clock and current weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.current_weather_and_three_days) {
@@ -735,7 +735,7 @@ public class WidgetUpdateService extends Service {
             wData.setDayWeather(1, WorldWeatherElement.getDayWeatherFromToday(jsonStr, 0));
             wData.setDayWeather(2, WorldWeatherElement.getDayWeatherFromToday(jsonStr, 1));
             CurrentWeatherAndThreeDays.setWidgetStyle(context, widgetId, views);
-            CurrentWeatherAndThreeDays.setWidgetData(context, views, wData, mLocalUnits);
+            CurrentWeatherAndThreeDays.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWorldWeather", "set 3x1 clock and current weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.daily_weather) {
@@ -765,7 +765,7 @@ public class WidgetUpdateService extends Service {
                 wData.setDayWeather(i, WorldWeatherElement.getDayWeatherFromToday(jsonStr, i-1));
             }
             W4x2ClockCurrentDaily.setWidgetStyle(context, widgetId, views);
-            W4x2ClockCurrentDaily.setWidgetData(context, views, wData, mLocalUnits);
+            W4x2ClockCurrentDaily.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x2 clock current daily id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x1_hourly) {
@@ -789,7 +789,7 @@ public class WidgetUpdateService extends Service {
                 index++;
             }
             W4x1Current3Hourly.setWidgetStyle(context, widgetId, views);
-            W4x1Current3Hourly.setWidgetData(context, views, wData, mLocalUnits);
+            W4x1Current3Hourly.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x1 current hourly id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x2_clock_current_hourly) {
@@ -801,7 +801,7 @@ public class WidgetUpdateService extends Service {
                 index++;
             }
             W4x2ClockCurrentHourly.setWidgetStyle(context, widgetId, views);
-            W4x2ClockCurrentHourly.setWidgetData(context, views, wData, mLocalUnits);
+            W4x2ClockCurrentHourly.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x2 clock current hourly id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x3_clock_current_hourly_daily) {
@@ -816,7 +816,7 @@ public class WidgetUpdateService extends Service {
                 wData.setDayWeather(i, WorldWeatherElement.getDayWeatherFromToday(jsonStr, i-1));
             }
             W4x3ClockCurrentHourlyDaily.setWidgetStyle(context, widgetId, views);
-            W4x3ClockCurrentHourlyDaily.setWidgetData(context, views, wData, mLocalUnits);
+            W4x3ClockCurrentHourlyDaily.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x3 clock current hourly daily id=" + widgetId);
         }
         return views;
@@ -884,12 +884,12 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.w1x1_current_weather) {
             W1x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W1x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            W1x1CurrentWeather.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 1x1WidgetData id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w2x1_current_weather) {
             W2x1CurrentWeather.setWidgetStyle(context, widgetId, views);
-            W2x1CurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            W2x1CurrentWeather.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 2x1 current weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.air_quality_index) {
@@ -899,12 +899,12 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.clock_and_current_weather) {
             ClockAndCurrentWeather.setWidgetStyle(context, widgetId, views);
-            ClockAndCurrentWeather.setWidgetData(context, views, wData, mLocalUnits);
+            ClockAndCurrentWeather.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 3x1 clock and current weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.current_weather_and_three_days) {
             CurrentWeatherAndThreeDays.setWidgetStyle(context, widgetId, views);
-            CurrentWeatherAndThreeDays.setWidgetData(context, views, wData, mLocalUnits);
+            CurrentWeatherAndThreeDays.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 3x1 clock and current weather id=" + widgetId);
         }
         else if (mLayoutId == R.layout.daily_weather) {
@@ -919,12 +919,12 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.w4x2_clock_current_daily) {
             W4x2ClockCurrentDaily.setWidgetStyle(context, widgetId, views);
-            W4x2ClockCurrentDaily.setWidgetData(context, views, wData, mLocalUnits);
+            W4x2ClockCurrentDaily.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x2 clock current daily id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x1_current_hourly) {
             W4x1Current3Hourly.setWidgetStyle(context, widgetId, views);
-            W4x1Current3Hourly.setWidgetData(context, views, wData, mLocalUnits);
+            W4x1Current3Hourly.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x1 current hourly id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x1_hourly) {
@@ -934,12 +934,12 @@ public class WidgetUpdateService extends Service {
         }
         else if (mLayoutId == R.layout.w4x2_clock_current_hourly) {
             W4x2ClockCurrentHourly.setWidgetStyle(context, widgetId, views);
-            W4x2ClockCurrentHourly.setWidgetData(context, views, wData, mLocalUnits);
+            W4x2ClockCurrentHourly.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x2 clock current hourly id=" + widgetId);
         }
         else if (mLayoutId == R.layout.w4x3_clock_current_hourly_daily) {
             W4x3ClockCurrentHourlyDaily.setWidgetStyle(context, widgetId, views);
-            W4x3ClockCurrentHourlyDaily.setWidgetData(context, views, wData, mLocalUnits);
+            W4x3ClockCurrentHourlyDaily.setWidgetData(context, widgetId, views, wData, mLocalUnits);
             Log.i("UpdateWidgetService", "set 4x3 clock current hourly daily id=" + widgetId);
         }
 

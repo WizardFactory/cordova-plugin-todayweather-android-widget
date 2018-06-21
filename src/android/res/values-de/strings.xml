@@ -13,7 +13,8 @@
     <string name="current_position">Aktueller Standort</string>
     <string name="ok">Überprüfen</string>
     <string name="cancel">Ablehnen</string>
-    <string name="aqi">AQI</string>
+    <string name="air_info">Luftqualität</string>
+    <string name="aqi">Luftqualitätsindex</string>
     <string name="pm10">PM10</string>
     <string name="pm25">PM2.5</string>
     <string name="good">Gut</string>

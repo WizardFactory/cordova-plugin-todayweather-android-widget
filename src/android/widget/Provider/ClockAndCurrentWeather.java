@@ -56,7 +56,12 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetClockCurrentData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetClockCurrentData(Context context,
+                                                 int appWidgetId,
+                                                 RemoteViews views,
+                                                 WidgetData wData,
+                                                 Units localUnits)
+    {
         if (wData == null) {
             Log.e(TAG, "weather data is NULL");
             return;
@@ -88,15 +93,17 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             skyResourceId = R.drawable.sun;
         }
         views.setImageViewResource(R.id.current_sky, skyResourceId);
-        views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, wData, localUnits));
+        views.setTextViewText(R.id.tmn_tmx_pm_pp, makeTmnTmxPmPpStr(context, appWidgetId, wData, localUnits));
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views,
+                                     WidgetData wData, Units localUnits)
+    {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
-        setWidgetClockCurrentData(context, views, wData, localUnits);
+        setWidgetClockCurrentData(context, appWidgetId, views, wData, localUnits);
     }
 
-    static protected String makeTmnTmxPmPpStr(Context context, WidgetData wData, Units localUnits) {
+    static protected String makeTmnTmxPmPpStr(Context context, int appWidgetId, WidgetData wData, Units localUnits) {
         WeatherData data = wData.getCurrentWeather();
 
         int minTemperature = (int)data.getMinTemperature();
@@ -117,18 +124,26 @@ public class ClockAndCurrentWeather extends TwWidgetProvider {
             today_tmn_tmx_pm_pp += rn1+localUnits.getPrecipitationUnit();
         }
         else {
-            int pm10Grade = data.getPm10Grade();
-            int pm25Grade = data.getPm25Grade();
-            if (pm10Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                today_tmn_tmx_pm_pp += " :::";
-                if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL && pm25Grade > pm10Grade) {
-                    today_tmn_tmx_pm_pp += data.getPm25Str();
-                } else {
-                    today_tmn_tmx_pm_pp += data.getPm10Str();
-                }
-            } else if (pm25Grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
-                today_tmn_tmx_pm_pp += " :::";
-                today_tmn_tmx_pm_pp += data.getPm25Str();
+            int airInfoIndex = SettingsActivity.loadAirInfoIndexPref(context, appWidgetId);
+            int grade = WeatherElement.DEFAULT_WEATHER_INT_VAL;
+            String str = "";
+
+            Log.i(TAG, "airInfoIndex=" + airInfoIndex);
+            if (airInfoIndex == 0) {
+                grade = data.getAqiGrade();
+                str = data.getAqiStr();
+            }
+            else if (airInfoIndex == 1) {
+                grade = data.getPm25Grade();
+                str = data.getPm25Str();
+            }
+            else if (airInfoIndex == 2) {
+                grade = data.getPm10Grade();
+                str = data.getPm10Str();
+            }
+
+            if (grade != WeatherElement.DEFAULT_WEATHER_INT_VAL) {
+                today_tmn_tmx_pm_pp += " :::"+str;
             }
         }
         return today_tmn_tmx_pm_pp;

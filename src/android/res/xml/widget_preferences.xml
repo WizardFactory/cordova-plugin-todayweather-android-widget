@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory android:title="@string/general">
+    <PreferenceCategory
+        android:key="general"
+        android:title="@string/general">
         <ListPreference
             android:key="location"
             android:title="@string/location" />
@@ -10,6 +12,12 @@
             android:entries="@array/refreshInterval"
             android:entryValues="@array/refreshIntervalValues"
             android:title="@string/refresh_interval" />
+        <ListPreference
+            android:enabled="true"
+            android:key="airInfo"
+            android:entries="@array/airInfo"
+            android:entryValues="@array/airInfoValues"
+            android:title="@string/air_info" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/style">
         <ListPreference

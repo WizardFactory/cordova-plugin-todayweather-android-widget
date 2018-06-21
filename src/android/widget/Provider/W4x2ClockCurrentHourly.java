@@ -28,9 +28,9 @@ public class W4x2ClockCurrentHourly extends ClockAndCurrentWeather {
         TwWidgetProvider.setPendingIntentToApp(context, appWidgetId, views);
     }
 
-    static public void setWidgetData(Context context, RemoteViews views, WidgetData wData, Units localUnits) {
+    static public void setWidgetData(Context context, int appWidgetId, RemoteViews views, WidgetData wData, Units localUnits) {
         TwWidgetProvider.setWidgetInfoData(context, views, wData);
-        ClockAndCurrentWeather.setWidgetClockCurrentData(context, views, wData, localUnits);
+        ClockAndCurrentWeather.setWidgetClockCurrentData(context, appWidgetId, views, wData, localUnits);
         W4x1Hourly.setWidgetHourlyData(context, views, wData);
     }
 }
