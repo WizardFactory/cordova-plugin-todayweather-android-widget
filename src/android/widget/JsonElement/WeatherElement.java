@@ -231,6 +231,7 @@ public class WeatherElement {
             current.setRn1(weatherCurrent.getRn1());
             current.setRn1Str(weatherCurrent.getRn1Str());
             current.setTimeZoneOffsetMS(9*60*60*1000); //korea UTC +9:00
+            current.setTimeZoneId("Asia/Seoul"); //korea UTC +9:00
 
             // get yesterday data
             WeatherData before24hWeather = new WeatherData();

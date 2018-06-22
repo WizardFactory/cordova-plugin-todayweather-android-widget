@@ -32,6 +32,15 @@ public class WeatherData {
     private String rn1Str = null;
     private double rn1 = WeatherElement.DEFAULT_WEATHER_DOUBLE_VAL;
     private int timeZoneOffsetMS = WeatherElement.DEFAULT_WEATHER_INT_VAL;
+    private String timeZoneId = null;
+
+    public void setTimeZoneId(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
+    }
+
+    public String getTimeZoneId() {
+        return timeZoneId;
+    }
 
     public void setTimeZoneOffsetMS(int timeZoneOffsetMS) {
         this.timeZoneOffsetMS = timeZoneOffsetMS;
