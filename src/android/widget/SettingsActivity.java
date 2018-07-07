@@ -133,11 +133,13 @@ public class SettingsActivity extends PreferenceActivity {
                 refreshInterval = (ListPreference)settingsFragment.findPreference("refreshInterval");
                 nRefreshInterval =  Integer.parseInt(refreshInterval.getValue());
 
-                airInfo = (ListPreference)settingsFragment.findPreference("airInfo");
-                airInfoIndex = airInfo.findIndexOfValue(airInfo.getValue());
-
                 transparency = (ListPreference)settingsFragment.findPreference("transparency");
                 nTransparency = Integer.parseInt(transparency.getValue());
+
+                airInfo = (ListPreference)settingsFragment.findPreference("airInfo");
+                if (airInfo != null) {
+                    airInfoIndex = airInfo.findIndexOfValue(airInfo.getValue());
+                }
             }
             catch(Exception e) {
                 Log.e(TAG, e.toString());
