@@ -73,7 +73,9 @@ public class AirQualityIndex extends TwWidgetProvider {
         }
 
         SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-        views.setTextViewText(R.id.pubdate, transFormat.format(Calendar.getInstance().getTime()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(wData.dataTime);
+        views.setTextViewText(R.id.pubdate, transFormat.format(calendar.getTime()));
 
         int aqiGrade = currentData.getAqiGrade();
         int pm10Grade = currentData.getPm10Grade();

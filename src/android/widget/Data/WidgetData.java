@@ -14,6 +14,7 @@ public class WidgetData {
     WeatherData hourlyWeather[] = null;
     String Loc = null;
     Units units = null;
+    public long dataTime = 0;
 
     public WidgetData() {
         daysWeather = new WeatherData[MAX_WEAHTER_INDEX+1];

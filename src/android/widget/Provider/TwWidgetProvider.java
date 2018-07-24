@@ -31,8 +31,6 @@ public class TwWidgetProvider extends AppWidgetProvider {
     protected static String TAG;
     protected int mLayoutId;
 
-    private static AlarmManager mAlarmManager;
-
     public TwWidgetProvider() {
         TAG = "TwWidgetProvider";
         mLayoutId = -1;
@@ -74,9 +72,10 @@ public class TwWidgetProvider extends AppWidgetProvider {
         }
 
         SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(wData.dataTime);
         views.setTextViewText(R.id.pubdate, context.getString(R.string.update)+" "+
-                transFormat.format(Calendar.getInstance().getTime()));
-
+                transFormat.format(calendar.getTime()));
         return;
     }
 
@@ -105,6 +104,7 @@ public class TwWidgetProvider extends AppWidgetProvider {
     static public void setPendingIntentToRefresh(Context context, int appWidgetId, RemoteViews views) {
         Intent serviceIntent = new Intent(context, WidgetUpdateService.class);
         serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        serviceIntent.putExtra("ManualUpdate", true);
         PendingIntent pendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             pendingIntent = PendingIntent.getForegroundService(context, appWidgetId,
@@ -152,56 +152,12 @@ public class TwWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private PendingIntent getAlarmIntent(Context context, int appWidgetId) {
-        Intent intent = new Intent(context, getClass());
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetId});
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, appWidgetId, intent, 0);
-        return pendingIntent;
-    }
-
-    /**
-     * set은 SettingsActivity에서 함.
-     * @param context
-     * @param appWidgetId
-     */
-    private void cancelAlarmManager(Context context, int appWidgetId) {
-        if (mAlarmManager == null) {
-            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-        if (pendingIntent != null) {
-            Log.i(TAG, "widgetId:"+appWidgetId+", cancelAlarm:true");
-            pendingIntent.cancel();
-            mAlarmManager.cancel(pendingIntent);
-        }
-    }
-
-    private void setAlarmManager(Context context, int appWidgetId) {
-        if (mAlarmManager == null) {
-            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
-        if (pendingIntent != null) {
-            long updateInterval = SettingsActivity.loadUpdateIntervalPref(context, appWidgetId);
-            if (updateInterval > 0) {
-                Log.i(TAG, "widgetId: "+appWidgetId+", setAlarmInterval: "+updateInterval);
-                long updateTime = System.currentTimeMillis() + updateInterval;
-                mAlarmManager.setRepeating(AlarmManager.RTC, updateTime, updateInterval, pendingIntent);
-            }
-        }
-    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
-            cancelAlarmManager(context, appWidgetId);
-            setAlarmManager(context, appWidgetId);
         }
     }
 
@@ -217,7 +173,7 @@ public class TwWidgetProvider extends AppWidgetProvider {
         ComponentName provider = new ComponentName(context, getClass());
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(provider);
         for (int appWidgetId : appWidgetIds) {
-            cancelAlarmManager(context, appWidgetId);
+            SettingsActivity.cancelAlarmManager(context, appWidgetId);
         }
     }
 
@@ -225,7 +181,7 @@ public class TwWidgetProvider extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         // When the user deletes the widget, delete the preference associated with it.
         for (int appWidgetId : appWidgetIds) {
-            cancelAlarmManager(context, appWidgetId);
+            SettingsActivity.cancelAlarmManager(context, appWidgetId);
             SettingsActivity.deleteWidgetPref(context, appWidgetId);
         }
     }

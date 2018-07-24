@@ -66,7 +66,9 @@ public class W2x1CurrentWeather extends TwWidgetProvider {
         }
 
         SimpleDateFormat transFormat = new SimpleDateFormat("HH:mm");
-        views.setTextViewText(R.id.pubdate, transFormat.format(Calendar.getInstance().getTime()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(wData.dataTime);
+        views.setTextViewText(R.id.pubdate, transFormat.format(calendar.getTime()));
         views.setTextViewText(R.id.current_temperature, String.valueOf(currentData.getTemperature())+"°");
 
         int skyResourceId = context.getResources().getIdentifier(currentData.getSkyImageName(), "drawable", context.getPackageName());
