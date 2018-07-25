@@ -1,11 +1,13 @@
 package net.wizardfactory.todayweather.widget;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
@@ -38,6 +40,7 @@ public class SettingsActivity extends PreferenceActivity {
     private static final String WIDGET_BG_COLOR_PREFIX_KEY = "bgColor_";
     private static final String WIDGET_FONT_COLOR_PREFIX_KEY = "fontColor_";
     private static final String WIDGET_AIR_INFO_PREFIX_KEY = "airInfo_";
+    private static final String WIDGET_NEXT_UPDATE_TIME_PREFIX_KEY = "nextUpdateTime_";
 
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private SettingsFragment settingsFragment;
@@ -98,19 +101,6 @@ public class SettingsActivity extends PreferenceActivity {
             hasAirInfo = false;
         }
         return hasAirInfo;
-    }
-    
-    private PendingIntent getAlarmIntent(Context context, int appWidgetId) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int layoutId = appWidgetManager.getAppWidgetInfo(mAppWidgetId).initialLayout;
-        Class<?> widgetProvider = WidgetUpdateService.getWidgetProvider(layoutId);
-
-        Intent intent = new Intent(this, widgetProvider);
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetId});
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-        return pendingIntent;
     }
 
     @Override
@@ -272,6 +262,18 @@ public class SettingsActivity extends PreferenceActivity {
         prefs.apply();
     }
 
+    public static long loadNextUpdateTimeIndexPref(Context context, int appWidgetId) {
+        SharedPreferences widgetPrefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0);
+        long nextUpdateTime = widgetPrefs.getLong(WIDGET_NEXT_UPDATE_TIME_PREFIX_KEY + appWidgetId, 0);
+        return nextUpdateTime;
+    }
+
+    public static void saveNextUpdateTimeIndexPref(Context context, int appWidgetId, long nextUpdateTime) {
+        SharedPreferences.Editor prefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0).edit();
+        prefs.putLong(WIDGET_NEXT_UPDATE_TIME_PREFIX_KEY + appWidgetId, nextUpdateTime);
+        prefs.apply();
+    }
+
     /**
      *
      * @param context
@@ -363,5 +365,48 @@ public class SettingsActivity extends PreferenceActivity {
         SharedPreferences.Editor prefs = context.getSharedPreferences(WIDGET_PREFS_NAME, 0).edit();
         prefs.putInt(WIDGET_FONT_COLOR_PREFIX_KEY + appWidgetId, fontColor);
         prefs.apply();
+    }
+
+    public static PendingIntent getAlarmIntent(Context context, int appWidgetId) {
+        Intent serviceIntent = new Intent(context, WidgetUpdateService.class);
+        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            pendingIntent = PendingIntent.getForegroundService(context, appWidgetId,
+                    serviceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+        else {
+            pendingIntent = PendingIntent.getService(context, appWidgetId, serviceIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+        return pendingIntent;
+    }
+
+    public static void cancelAlarmManager(Context context, int appWidgetId) {
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+        if (pendingIntent != null) {
+            Log.i(TAG, "widgetId:"+appWidgetId+", cancelAlarm:true");
+            pendingIntent.cancel();
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    public static void setAlarmManager(Context context, int appWidgetId) {
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = getAlarmIntent(context, appWidgetId);
+        if (pendingIntent != null) {
+            long updateInterval = loadUpdateIntervalPref(context, appWidgetId);
+            if (updateInterval > 0) {
+                Log.i("Service", "widgetId: "+appWidgetId+", setAlarmInterval: "+updateInterval);
+                long updateTime = System.currentTimeMillis() + updateInterval;
+                alarmManager.setRepeating(AlarmManager.RTC, updateTime, updateInterval, pendingIntent);
+                //save updatetime for checking on update
+                saveNextUpdateTimeIndexPref(context, appWidgetId, updateTime);
+            }
+            else {
+                saveNextUpdateTimeIndexPref(context, appWidgetId, 0);
+            }
+        }
     }
 }
